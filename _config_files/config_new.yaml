@@ -1,0 +1,19 @@
+batch_size: 100
+dropout: 0.6
+epochs: 8
+error_buffer: 100
+header: [run_id, chan_id, num_anoms, anomaly_sequences, num_total_vals]
+l_s: 200
+layers: [85, 85]
+loss_metric: mse
+lstm_batch_size: 80
+min_delta: 0.03
+n_predictions: 1
+optimizer: adam
+p: 0.0
+patience: 10
+predict: true
+smoothing_perc: 0.04
+train: true
+validation_split: 0.4
+window_size: 5

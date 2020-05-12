@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anomaly Detector | Pick New Method</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+    <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.5.6/dist/progressbar.js"></script>
+
+    <script src="static/js/all_pages.js"></script>
+    <script src="static/js/submission.js"></script>
+    <script src="static/js/pick_method.js"></script>
+
+
+</head>
+<body>
+<nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
+<!--/.Navbar-->
+<div id="progress-div"></div>
+<div class="row">
+    <form class="mx-5 my-2" style="width: 100%;">
+        <div class="form-group row">
+            <label for="job-name-input" class="col-sm-2 col-form-label">Job Name</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="job-name-input" placeholder="Sample Job Name" onkeyup="enable_next()" autocomplete="off">
+            </div>
+            <div class="form-check col-sm-6">
+                <input class="form-check-input" type="checkbox" value="" id="date-as-name" onchange="date_as_name()">
+                <label class="form-check-label" for="date-as-name">
+                    Use current time as job name
+                </label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="description-input" class="col-sm-2 col-form-label">Job Description</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="description-input" placeholder="Sample Description Name">
+            </div>
+        </div>
+         <div class="form-group row">
+            <div class="col-sm-2 cur-method">
+               Currently Picked Method:
+            </div>
+             <div class="col-sm-4 cur-method" id="picked-method">
+               None
+            </div>
+        </div>
+        <div class="form-group row justify-content-center mx-auto my-auto h-90 py-5" style="width: 100%">
+            <div class="form-group col-lg-6 justify-content-center center-block mx-auto my-auto" id="options_here">
+                <!--<div class="form-group row-sm-4 mx-auto">-->
+                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('lstm')">LSTM RNN with Telemanom</button>-->
+                <!--</div>-->
+                <!--<div class="form-group row-sm-4 mx-auto">-->
+                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('ocsvm')">One-Class SVM</button>-->
+                <!--</div>-->
+                <!--<div class="form-group row-sm-4 mx-auto">-->
+                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('stdev')">Standard Deviation</button>-->
+                <!--</div>-->
+            </div>
+            <div class="form-group col my-auto d-flex justify-content-center align-items-center mx-3" style="height: 50vh">
+                <div class="card-content my-auto d-flex justify-content-center align-items-center" id="help-div">
+                    Click on one of the buttons to learn more
+                </div>
+            </div>
+        </div>
+    </form>
+    <!--footer-->
+    <div id="footer-here"></div>
+    <!--/.footer-->
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualize Submission</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script src="static/js/all_pages.js"></script>
+    <script src="static/js/visualize_submission.js"></script>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<!--Navbar-->
+<nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
+<!--/.Navbar-->
+
+<div class="row w-100 align-items-center justify-content-center mt-4 mb-2">
+    <h4 id="page-title"></h4>
+</div>
+
+<!--parameter accordion-->
+<div class="row no-gutters mx-4 align-items-center justify-content-left accordion">
+    <div class="btn btn-md btn-secondary btn-block" data-toggle="collapse" data-target="#collapseOne"
+         aria-controls="collapseOne">
+        Click to show/hide parameters
+    </div>
+    <div id="collapseOne" class="no-gutters collapse" aria-labelledby="headingOne" style="width: 100% ;">
+        <div class="row no-gutters" id="param-content"></div>
+    </div>
+</div>
+<!--/.parameter accordion-->
+
+<!--checkboxes-->
+<div class="row align-items-center justify-content-center mt-4">
+    <div class="row no-gutters d-flex align-items-center justify-content-left mx-5" id="signal-type-toggle" style="width: 100%;">
+        <div class="row no-gutters mx-3 text-left d-flex justify-content-start h-100">Toggle graph curves:</div>
+        <div class="col-2 text-left toggle">
+            <input type="checkbox" checked id="toggleall_vals" onchange="toggleAllListener(this)">
+            <label for="toggleall_vals">All curves</label>
+        </div>
+    </div>
+    <ul class="list-inline row no-gutters d-flex align-items-center justify-content-start mx-5" id="channel-toggle"
+        style="width: 100%;">
+        <li class="row no-gutters mx-3 text-left d-flex justify-content-start h-100">Toggle channel curves:</li>
+    </ul>
+</div>
+<!--/.checkboxes-->
+
+
+<!--Plot-->
+<div id="plot" style="width: 95%; height: 80vh"></div>
+<!--/.Plot-->
+
+
+</body>
+</html>

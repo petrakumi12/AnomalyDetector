@@ -1,0 +1,10 @@
+# data/20*
+*DS_Store
+*archive/*
+tmp/*
+telemanom/__pycache__*
+*.pyc
+# results/20*
+data.zip*
+.idea
+venv

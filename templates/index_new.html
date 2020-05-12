@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anomaly Detector</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+    <script src="static/js/all_pages.js"></script>
+    <script src="static/js/index_new.js"></script>
+</head>
+<body id="body">
+
+<!--Navbar-->
+<nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
+<!--/.Navbar-->
+
+<div class="index-div">
+    <div class="row align-items-center justify-content-center typed" id="index-title" style="width: 100%;"></div>
+    <div class="row no-gutters">
+        <div class="index-content btn-group mx-auto">
+            <button class="btn btn-info dropdown-toggle mr-3 my-3 btn-lg" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Start New Anomaly Detection Job
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" onclick="save_method_and_next('raw')">From raw signal</a>
+                <div class="dropdown-divider"></div>
+                <!--<h2 class="dropdown-header" style="font-size: 1em; color: #2e2c2e;">From LSTM-smoothed signal</h2>-->
+                <a class="dropdown-item" onclick="save_method_and_next('LSTM-new')">New LSTM model</a>
+                <a class="dropdown-item" onclick="save_method_and_next('LSTM-prev')">Previously trained LSTM model</a>
+            </div>
+            <a href="/results" class="btn btn-info mx-3 my-3 btn-lg rounded" role="button" aria-pressed="true">View
+                Previous Jobs</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
