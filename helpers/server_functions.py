@@ -40,7 +40,7 @@ def submit_request(args, anomalydetector):
     Submits anomaly detection job request to queue
     :return: the queue containing all the jobs
     """
-    anomalydetector.logger.info("Request Submitted")
+    anomalydetector.anom_logger.info("Request Submitted")
     anomalydetector.queue_job(args, anomalydetector.lock)
     return anomalydetector.queue
 
@@ -111,20 +111,3 @@ def start_thread(anomalydetector):
                 print('starting anomaly detection job')
                 anomalydetector.start_job(args)
 
-
-# def get_train_test_sets(args):
-#     """
-#     Gets training and testing sets based on whether user uploaded sets or picked existing
-#     and save them on the args variable for use in anomaly detection
-#     :param args: dict with all info needed for starting a job
-#     :return:
-#     """
-#     arr = ['test']
-#     if args['job_type'] == 'LSTM-new':
-#         arr.append('train')
-#     for atype in arr:
-#         if args['params']['sets'][atype][0] != 'upload':
-#             # TODO get testing set from database here
-#             pass
-#             # get sets uploaded on db and add them to args
-#     return args

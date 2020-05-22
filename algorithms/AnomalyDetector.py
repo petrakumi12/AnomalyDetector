@@ -1,8 +1,10 @@
 import logging
 import os
+import shutil
 import threading
 from pathlib import Path
 
+import boto3
 import yaml
 
 from algorithms.lstm.LSTM import LSTM
@@ -22,7 +24,8 @@ class AnomalyDetector:
     def __init__(self):
         self.is_running = False  # whether an anomaly detection process is currently running
         self.queue = []  # will contain all submitted anomaly detection jobs that are pending
-        self.logger = logging.getLogger('anomalydetector')  # for logging output
+        self.anom_logger = logging.getLogger('anomalydetectorlogger')  # for logging output
+        self.job_logger = logging.getLogger('joblogger')
         self.args = ""  # all arguments that will be needed to run an anomaly detection job
         self.default_algorithm_parameters = {
             'LSTM-new': {
@@ -155,6 +158,9 @@ class AnomalyDetector:
         }  # to be populated with all default params from all algorithms
         self.lock = threading.Lock()  # thread lock
         self.resources_folder = ""  # path to locally saved training and testing resources
+        self.s3 = boto3.resource('s3', aws_access_key_id='AKIA6DRFAEOYPV5RRJFF',
+                                 aws_secret_access_key='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')
+        self.bucket = self.s3.Bucket('anomdetectmodels')
 
     def load_default_algorithm_params(self):
         defaults = self.default_algorithm_parameters
@@ -178,7 +184,7 @@ class AnomalyDetector:
         :param lock: the semaphore lock which makes sure the queue is not being altered at the same time by two different processes
         :return: the id of the queued job
         """
-        self.logger.info("----------Job Queued----------")
+        self.anom_logger.info("----------Job Queued----------")
         # create a new job entry on the database with the above job id
         db_interactions.create_job(args)
         # update progress of job in db to job queued
@@ -192,15 +198,15 @@ class AnomalyDetector:
 
     def start_job(self, args):
         """
-        starts the process of running a job once it's dequeued by:
+        Starts the process of running a job once it's dequeued by:
         - changing state of anomaly detector to running
         - initializing logger
-        - initializing and running thread which processes the job
+        - initializing and running thread which initializes processing of the job
         :param args: job details
         """
-        self.logger.info("----------Job Left Queue and is Starting---------- %s " % (args['_id']))
+        self.anom_logger.info("----------Job Left Queue and is Starting---------- %s " % (args['_id']))
         self.is_running = True  # change anomaly detector state to running
-        self.logger.handlers = []
+        self.anom_logger.handlers = []
         t = threading.Thread(target=self.prep_job, args=(args,))
         t.start()
         t.join()
@@ -208,15 +214,20 @@ class AnomalyDetector:
 
     def prep_job(self, args):
         """
-        prepares datasets for the specific jobs
-        :param args:
+        Prepares datasets for the specific jobs
+        :param args: job details
         :return:
         """
-        self.resources_folder = os.path.join(os.getcwd(), '..', 'resources', 'temp', args['_id'])
+        # make resources folder for temporary storage of datasets
+        # make telemanom_temp_logs folder for temporary storage of logs
+        self.resources_folder = os.path.join(os.getcwd(), '..', 'resources', args['_id'])
+        self.resources_folder = os.path.join(os.getcwd(), '..', 'telemanom_temp_logs')
+
         Path(os.path.join(self.resources_folder, 'train')).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(self.resources_folder, 'test')).mkdir(parents=True, exist_ok=True)
         # update db to processing user input
         db_interactions.update_progress(args['_id'], args['jobs_db'], 0)
+
         # first, reformat inputted datasets to make usable
         args = custom_helpers.reformat_datasets(args)
         args['jobs_db'].update_one(
@@ -228,18 +239,18 @@ class AnomalyDetector:
 
         # if using lstm smoothing
         if 'LSTM' in args['signal_type']:
-            self.logger.info('LSTM smoothed signal')
+            self.anom_logger.info('LSTM smoothed signal')
             # adding params that will be needed in the config file for both training and testing lstms
             args = custom_helpers.add_extra_lstm_params(args)
             custom_helpers.prepare_testing_sets(args, self.resources_folder)  # prep testing sets
 
             if args['signal_type'] == 'LSTM-new':  # adding params that are needed if training new model
-                self.logger.info('Will train LSTM')
+                self.anom_logger.info('Will train LSTM')
                 # args = custom_helpers.add_training_lstm_params(args, self.splits)
                 custom_helpers.prepare_training_sets(args, self.resources_folder)
 
             if args['signal_type'] == 'LSTM-prev':  # adding params that are needed if using previously trained model
-                self.logger.info('Will use previously trained LSTM')
+                self.anom_logger.info('Will use previously trained LSTM')
                 args = custom_helpers.add_testing_lstm_params(args)
 
             # third, make sure the parameters are the right type and dump them to the config file
@@ -250,14 +261,14 @@ class AnomalyDetector:
 
             # finally, create LSTM object, run LSTM, then run the anomaly detection job
             lstm = LSTM(args, os.path.join(self.resources_folder, 'train'), os.path.join(self.resources_folder, 'test'),
-                        self.logger)
+                        self.anom_logger)
 
-            self.logger.info('---------------------------------')
-            self.logger.info('----------Starting LSTM----------')
+            self.anom_logger.info('---------------------------------')
+            self.anom_logger.info('----------Starting LSTM----------')
             lstm.run()
             self.run_job(args, lstm)
         else:
-            self.logger.info('Raw signal')
+            self.anom_logger.info('Raw signal')
             # if not using LSTM, then only make sure params have right types and run job
             args = custom_helpers.convert_args_to_numeric(args)
             self.run_job(args)
@@ -265,13 +276,19 @@ class AnomalyDetector:
         return args
 
     def run_job(self, args, lstm=None):
+        """
+        Runs the anomaly detection job and saves results
+        :param args:
+        :param lstm:
+        :return:
+        """
         # initialize final json which will contain results and be saved in database
         # results_json = args['jobs_db'].find_one('_id', args['_id'])
         results = {}
         with open("_config_files/config_new.yaml", "w") as file:
-            self.logger.info('--------------------------------')
-            self.logger.info('Starting %s', args['job_type'])
-            self.logger.info('--------------------------------')
+            self.anom_logger.info('--------------------------------')
+            self.anom_logger.info('Starting %s', args['job_type'])
+            self.anom_logger.info('--------------------------------')
 
             signal_arrays = {}
             if lstm is not None:
@@ -280,22 +297,24 @@ class AnomalyDetector:
                 for item in args['params']['sets']['test']:
                     signal_arrays[item['name']] = item['sig_vals']
 
-            # print('signal arrays', signal_arrays)
+            if bool(signal_arrays):
+                if args['job_type'] == 'Telemanom':
+                    results = run_telemanom(args, file, lstm)
+                if args['job_type'] == 'Variation with Percentile-based Threshold':
+                    var = VariationPercentile(args, signal_arrays, self.anom_logger)
+                    results = var.run()
+                if args['job_type'] == 'Variation with Standard Deviation-based Threshold':
+                    var = VariationStandardDeviation(args, signal_arrays, self.anom_logger)
+                    results = var.run()
+                if args['job_type'] == 'Variation of Variation with Standard Deviation-based Threshold':
+                    var = VariationVariationStDev(args, signal_arrays, self.anom_logger)
+                    results = var.run()
+                file.close()
+                self.save_job_results(args, results, lstm)
+            else:
+                self.end_job(args, success=False)
 
-            if args['job_type'] == 'Telemanom':
-                results = run_telemanom(args, file, lstm)
-            if args['job_type'] == 'Variation with Percentile-based Threshold':
-                var = VariationPercentile(args, signal_arrays, self.logger)
-                results = var.run()
-            if args['job_type'] == 'Variation with Standard Deviation-based Threshold':
-                var = VariationStandardDeviation(args, signal_arrays, self.logger)
-                results = var.run()
-            if args['job_type'] == 'Variation of Variation with Standard Deviation-based Threshold':
-                var = VariationVariationStDev(args, signal_arrays, self.logger)
-                results = var.run()
-
-        file.close()
-
+    def save_job_results(self, args, results, lstm):
         if lstm is not None:
             # add lstm predictions to results
             for chan, y_hat in lstm.y_hats.items():
@@ -305,13 +324,27 @@ class AnomalyDetector:
             {'_id': args['_id']},
             {'$set': {'results': results}}
         )
+        self.end_job(args)
 
-        db_interactions.update_progress(args['_id'], args['jobs_db'], 9)  # final update to job completed
-        self.is_running = False
+    def end_job(self, args, success=True):
+        if success:
+            db_interactions.update_progress(args['_id'], args['jobs_db'], 9)  # final update to job completed
+        else:
+            self.anom_logger.info('Job interrupted so early stopping activated')
+        # close logger handlers
+        handlers = self.anom_logger.handlers[:]
+        for handler in handlers:
+            handler.close()
+            self.anom_logger.removeHandler(handler)
 
-        # TODO add these lines of code again when models are properly saved in db
-        # if os.path.exists(os.path.join(os.getcwd(), 'resources', 'temp', args['_id'])):
-        #     shutil.rmtree(os.path.join(os.getcwd(), 'resources', 'temp', args['_id']))
+        # everything is done, closing connection and deleting temp folders
+        # if os.path.exists(os.path.join(os.getcwd(), 'resources')):
+        #     shutil.rmtree(os.path.join(os.getcwd(), 'resources'))
+        #
+        # if os.path.exists(os.path.join(os.getcwd(), 'telemanom_temp_logs')):
+        #     shutil.rmtree(os.path.join(os.getcwd(), 'telemanom_temp_logs'))
+
+        self.is_running = False # stop running anomaly detector
 
 
 def run_telemanom(args, file, lstm):

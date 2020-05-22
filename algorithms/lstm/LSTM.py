@@ -1,4 +1,9 @@
 import os
+import shutil
+import sys
+import traceback
+
+import boto3
 
 import helpers.plotter as plotter
 import helpers.db_interactions as db_interactions
@@ -23,6 +28,9 @@ class LSTM:
         self.config = Config("_config_files/config_new.yaml")
         self.args = args
         self.logger = logger
+        self.s3 = boto3.resource('s3', aws_access_key_id='AKIA6DRFAEOYPV5RRJFF',
+                            aws_secret_access_key='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')
+        self.bucket = self.s3.Bucket("anomdetectmodels")
 
         self.path_train = path_train
         self.path_test = path_test
@@ -35,12 +43,10 @@ class LSTM:
 
         self.y_hats = {}
 
-        print('hi', args['params']['sets']['train'])
-
         # make the necessary directories
         helpers.make_dirs(args['_id'])
         # set up the logger
-        helpers.setup_logging(self.config, args['_id'], logger)
+        helpers.setup_logging(args['_id'], logger)
         # updating progress in db to job started
         db_interactions.update_progress(args['_id'], args['jobs_db'], 3)
 
@@ -49,22 +55,24 @@ class LSTM:
         job_db = self.args['jobs_db']
 
         try:
-
+            # update progress to training or loading trained model
             db_interactions.update_progress(_id, job_db, 5)
+
+            self.config.job_id = _id
 
             # train here first
             # ===============================================
             if self.config.train:
                 self.X_train, self.y_train = helpers.load_train_data(self.path_train)
                 model = models.generate_train_model(self.X_train, self.y_train)
-                # save trained model locally for each
-                model.save(os.path.join("telemanom_temp_logs", _id, "models", 'train' + ".h5"))
+                # save trained model to aws s3 bucket for each
+                models.upload_h5(model, self)
             else:
-                model = models.load_train_model()
+                model = models.load_train_model(self)
 
             # then predict here using generated model
             # ===============================================
-            db_interactions.update_progress(_id, job_db, 6)  # predicting calculating anomalies update
+            db_interactions.update_progress(_id, job_db, 6)  # update progress to predicting shape with lstm
 
             channel_names = [x[:-4] for x in os.listdir(self.path_test) if x[-4:] == '.npy']
             print("chans being predicted: %s" % channel_names)
@@ -89,13 +97,13 @@ class LSTM:
 
             self.logger.info("all predictions complete")
             self.logger.info("---------------------------------")
-            keras.backend.clear_session()
-            return self.y_hats
+            # return self.y_hats
 
         except Exception as e:
             print(e)
-            # everything is done, closing connection and deleting temp folders
-            # if os.path.exists(os.path.join(os.getcwd(), 'resources', 'temp',_id)):
-            #     shutil.rmtree(os.path.join(os.getcwd(), 'resources', 'temp',_id))
+            traceback.print_exc(file=sys.stdout)
             db_interactions.update_progress(_id, job_db, -1)  # log interruption
-            return self.y_hats
+
+
+        keras.backend.clear_session()
+        return self.y_hats

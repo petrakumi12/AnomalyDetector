@@ -4,10 +4,12 @@ from algorithms.AnomalyDetector import AnomalyDetector
 from flask import Flask, render_template, jsonify, request, make_response
 from flask_pymongo import PyMongo
 import helpers.server_functions as server_functions
+import boto3
 
 
-path = r'C:\Users\Petra Kumi\OneDrive - Worcester Polytechnic Institute (wpi.edu)\School\MQP\Python ' \
-       r'Code\custom_telemanom\telemanom_temp_logs '
+
+# path = r'C:\Users\Petra Kumi\OneDrive - Worcester Polytechnic Institute (wpi.edu)\School\MQP\Python ' \
+#        r'Code\custom_telemanom\telemanom_temp_logs '
 
 app = Flask(__name__)
 app._static_folder = os.path.abspath("templates/static/")
@@ -147,7 +149,6 @@ def upload_new_datasets():
     return make_response('ok', 200)
 
 
-# TODO work on this when adding AWS
 @app.route('/get_saved_models', methods=['GET'])
 def get_saved_models():
     """
@@ -155,13 +156,12 @@ def get_saved_models():
     :return: all jobs with saved LSTM models
     """
     res_arr = []
-    for folder in os.listdir(path):
-        if os.path.isdir(os.path.join(path, folder, 'models')) and \
-                len(os.listdir(os.path.join(path, folder, 'models'))) != 0:
-            a_result = mongo.db.jobs.find_one({'_id': folder})
-            if a_result is not None:
-                res_arr.append(a_result)
-
+    for file in anomalydetector.bucket.objects.all():
+        id = file.key.replace(".h5", "")
+        job = mongo.db.jobs.find_one({"_id": id})
+        if job is not None:
+            res_arr.append(job)
+            print('job', job)
     return make_response(jsonify(res_arr), 200)
 
 
@@ -227,6 +227,7 @@ def clear_jobs_db():
     Removes all documents in the jobs collection of MongoDb
     :return: None
     """
+    anomalydetector.bucket.objects.all().delete()
     mongo.db.jobs.remove({})
     return
 

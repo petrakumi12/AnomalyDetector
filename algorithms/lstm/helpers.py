@@ -22,13 +22,11 @@ def make_dirs(_id):
 
     '''Create directories for storing data in repo (using datetime ID) if they don't already exist'''
 
-    if not config.train or not config.predict:
-        if not os.path.isdir('telemanom_temp_logs/%s' % config.use_id):
-            raise ValueError("Run ID %s is not valid. If loading prior models or predictions, must provide valid ID.")
+    # if not config.train or not config.predict:
+    #     if not os.path.isdir('telemanom_temp_logs/%s' % config.use_id):
+    #         raise ValueError("Run ID %s is not valid. If loading prior models or predictions, must provide valid ID.")
 
-    # paths = ['telemanom_logs', 'results', 'telemanom_logs/%s' % _id, 'telemanom_logs/%s/models' % _id,
-    #          'telemanom_logs/%s/smoothed_errors' % _id,
-    #          'telemanom_logs/%s/y_hat' % _id,
+
     paths = ['telemanom_temp_logs',
              'telemanom_temp_logs/%s' % _id,
              'telemanom_temp_logs/%s/models' % _id,
@@ -40,7 +38,7 @@ def make_dirs(_id):
             os.mkdir(p)
 
 
-def setup_logging(config, _id, logger):
+def setup_logging(_id, logger):
 
     '''Configure logging object to track parameter settings, training, and evaluation.
     Args:

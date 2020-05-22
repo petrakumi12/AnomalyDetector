@@ -5,6 +5,8 @@ from keras.layers.core import Dense, Activation, Dropout
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import io
+import boto3, re
 
 from algorithms.lstm._globals import Config
 
@@ -17,7 +19,6 @@ def generate_train_model(X_train, y_train):
     print('train shape', X_train.shape)
     config = Config("_config_files/config_new.yaml")
     print('layers shape', config.layers)
-
 
     cbs = [History(), EarlyStopping(monitor='val_loss', patience=config.patience,
                                     min_delta=config.min_delta, verbose=0)]
@@ -57,12 +58,14 @@ def generate_train_model(X_train, y_train):
     return model
 
 
-def load_train_model():
-    config = Config("_config_files/config_new.yaml")
-
-    # TODO fix this its not correct - model will be loaded from db somehow
-    return load_model(os.path.join("telemanom_temp_logs", config.use_id, "models", 'train' + ".h5"))
-
+def load_train_model(lstm):
+    """
+    Loads previously traned LSTM model
+    :param lstm: the LSTM class object
+    :return:
+    """
+    download_h5(lstm)
+    return load_model(os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
 
 
 def get_model(anom, X_train, y_train, logger, train=False):
@@ -139,6 +142,19 @@ def get_model(anom, X_train, y_train, logger, train=False):
         model.save(os.path.join("telemanom_temp_logs", anom['run_id'], "models", anom["chan_id"] + ".h5"))
 
         return model
+
+
+def upload_h5(model, lstm):
+    model_data = io.BytesIO()
+    model.save(model_data)
+    model_data.seek(0)
+    lstm.bucket.put_object(Body=model_data, ContentType='application/x-hdf5', Key=lstm.config.job_id + '.h5')
+
+
+def download_h5(lstm):
+    print('cwd',os.getcwd())
+    print('download path', os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.job_id + ".h5"))
+    lstm.bucket.download_file(lstm.config.use_id + '.h5', os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
 
 
 def predict_in_batches(y_test, X_test, model, chan_id, run_id):

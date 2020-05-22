@@ -193,9 +193,7 @@ def create_job(args):
         args_new[key] = val
     args_new['progress'] = progress[0]
     del args_new['jobs_db']
-    job_id = args['jobs_db'].insert(args_new)
-    # print("inserted into db", args['jobs_db'].find_one({'_id': job_id}))
-    return job_id
+    args['jobs_db'].insert(args_new)
 
 
 def update_progress(id, job_db, number):

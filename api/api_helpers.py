@@ -72,15 +72,15 @@ def add_default_parameters(req, anomalydetector):
 
             if req['params']['alg_params'].get(lstm_prev_param['config_name'], None) is None:
                 req['params']['alg_params'][lstm_prev_param['config_name']] = lstm_prev_param['default']
-
+        # lstm new
         if req['signal_type'] == 'LSTM-new':
             req['params']['alg_params']['train'] = True
             for lstm_new_param in defaults['LSTM-new']['params'].values():
                 if req['params']['alg_params'].get(lstm_new_param['config_name'], None) is None:
                     req['params']['alg_params'][lstm_new_param['config_name']] = lstm_new_param['default']
 
-        layer_no = req['params']['alg_params']['layers']
-        req['params']['alg_params']['layers'] = [int(layer_no), int(layer_no)]
+            layer_no = req['params']['alg_params']['layers']
+            req['params']['alg_params']['layers'] = [int(layer_no), int(layer_no)]
 
     # algorithm type params
     for params in defaults[req['job_type']]['params'].values():

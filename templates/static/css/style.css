@@ -101,9 +101,11 @@ tr {
 }
 
 
-button, a {
-    font-size: 1.4em !important;
-}
- p, label, input, #help-div, .cur-method {
-     font-size: 1.4em !important;
- }
+/*a {*/
+    /*font-size: 1.2em !important;*/
+/*}*/
+
+
+ /*label, input, #help-div, .cur-method {*/
+     /*font-size: 1.2em !important;*/
+ /*}*/
