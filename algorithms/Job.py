@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 from pathlib import Path
@@ -9,14 +8,14 @@ from algorithms.lstm import custom_helpers
 from algorithms.lstm.LSTM import LSTM
 from algorithms.telemanom.Telemanom import Telemanom
 from algorithms.variation_of_variation_stdev.VariationVariationStDev import VariationVariationStDev
-from algorithms.variation_percentile.VariationPercentile import VariationPercentile
-from algorithms.variation_stdev.VariationStandardDeviation import VariationStandardDeviation
+from algorithms.variation_algorithms.VariationPercentile import VariationPercentile
+from algorithms.variation_algorithms.VariationStandardDeviation import VariationStandardDeviation
 from helpers.db_interactions import db_arr_to_npy
 
 
 class Job:
     """
-    Class that controls multi-threading, anomaly detector job submissions, and how the jobs are carried through
+    Class responsible for initializing, carrying through, and ending a job
     """
 
     def __init__(self, args):

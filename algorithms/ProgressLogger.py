@@ -3,7 +3,7 @@ import logging
 
 class ProgressLogger():
     """
-    Class that handles running LSTM jobs
+    Class that handles logging of job progress
     """
     def __init__(self):
         self.logger = logging.getLogger('logger')

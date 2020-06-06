@@ -12,7 +12,7 @@ import numpy as np
 
 class MLAlgorithm(Algorithm):
     """
-    Class that handles running LSTM jobs
+    Superclass for all machine learning algorithms
     """
 
     def __init__(self, job):

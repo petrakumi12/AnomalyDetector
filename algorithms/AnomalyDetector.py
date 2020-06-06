@@ -6,7 +6,7 @@ from algorithms.ProgressLogger import ProgressLogger
 
 class AnomalyDetector:
     """
-    Class that controls multi-threading, anomaly detector job submissions, and how the jobs are carried through
+    Class that controls threads and queueing of jobs
     """
 
     def __init__(self):

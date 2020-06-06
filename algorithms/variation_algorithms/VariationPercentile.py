@@ -2,11 +2,11 @@ import numpy as np
 
 from algorithms.Algorithm import Algorithm
 from algorithms.ProgressLogger import ProgressLogger
+from algorithms.variation_algorithms.Variation import Variation
 from helpers.normalizer import normalize_arr
-import algorithms.variation_percentile.variation_helpers as vh
 
 
-class VariationPercentile(Algorithm):
+class VariationPercentile(Variation):
     """
     Class that handles running the method of Variation with Percentile-based Threshold
     """
@@ -25,7 +25,7 @@ class VariationPercentile(Algorithm):
         for chan, series in self.cur_job.get_ytests().items():
             ProgressLogger().log("analyzing %s (%s of %s)" % (chan, i, len(chans)))
 
-            var = [element[0] for element in normalize_arr(np.array(vh.variation(series, B)).reshape(-1, 1))]
+            var = [element[0] for element in normalize_arr(np.array(self.variation(series, B)).reshape(-1, 1))]
             indices = np.where(var > np.percentile(var, [percentile]))[0]
 
             predicted_anomalies = [1 if i - B in indices else 0 for i in range(len(series[:]))]
