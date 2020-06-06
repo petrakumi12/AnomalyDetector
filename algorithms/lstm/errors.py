@@ -23,12 +23,14 @@ def get_errors(y_test, y_hat, chan_id, run_id, smoothed=True):
         e_s (list): smoothed errors (residuals)
     """
     config = Config("_config_files/config_new.yaml")
-
+    print('y t', y_test)
+    print('zip', [(y_h, y_t) for y_h, y_t in zip(y_hat, y_test)])
     e = [abs(y_h - y_t[0]) for y_h, y_t in zip(y_hat, y_test)]
 
     if not smoothed:
         return e
 
+    print('len y hat y test', len(y_hat), len(y_test))
     smoothing_window = int(config.batch_size * config.window_size * config.smoothing_perc)
     if not len(y_hat) == len(y_test):
         raise ValueError(
@@ -40,7 +42,7 @@ def get_errors(y_test, y_hat, chan_id, run_id, smoothed=True):
     if not chan_id == 'C-2':  # anom occurs early in window (limited data available for channel)
         e_s[:config.l_s] = [np.mean(e_s[:config.l_s * 2])] * config.l_s
 
-    # np.save(os.path.join("telemanom_temp_logs", run_id, "smoothed_errors", chan_id + ".npy"), np.array(e_s))
+    # np.save(os.path.join("temp_logs", run_id, "smoothed_errors", chan_id + ".npy"), np.array(e_s))
 
     return e_s
 

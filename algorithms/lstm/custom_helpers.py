@@ -12,9 +12,10 @@ def make_training_set(train_arrays, start=None, end=None):
     formats training data to make ready for training of telemanom
     concatenates all channels together in one array with columns = [signal_val, event, chan_name]
     :param train_arrays: array of dictionaries containing data to be used for training
+    :param start:
+    :param end:
     :return: array ready for training
     """
-    # print('start end', start, end)
 
     final_training_set = np.array([])
     for i in range(len(train_arrays)):
@@ -39,11 +40,6 @@ def make_training_set(train_arrays, start=None, end=None):
 
 
 def reformat_datasets(args):
-    """
-    TODO
-    :param args:
-    :return:
-    """
     # making None elements into 0s
     print('args are', args)
     for a_type in ['train', 'test']:
@@ -68,8 +64,6 @@ def add_extra_lstm_params(args):
 def prepare_testing_sets(args, resources_folder):
     test_sets = args['params']['sets']['test']
     for channel in test_sets:
-        names_arr = [channel['name'] for j in range(len(channel['sig_vals']))]
-
         final_arr = np.vstack([channel['sig_vals'], channel['events']]).T
         # print('final arr is', final_arr, 'with shape', np.shape(final_arr))
         final_arr[:, 0] = normalizer.normalize_arr(final_arr[:, 0].reshape(-1, 1))[:, 0]

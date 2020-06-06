@@ -1,29 +1,30 @@
 import numpy as np
 
+from algorithms.Algorithm import Algorithm
+from algorithms.ProgressLogger import ProgressLogger
 from helpers.normalizer import normalize_arr
 import algorithms.variation_percentile.variation_helpers as vh
 
 
-class VariationVariationStDev:
+class VariationVariationStDev(Algorithm):
     """
     Class that handles running the method of  Variation of Variation with Standard Deviation-based Threshold
     """
 
-    def __init__(self, args, arrays, logger):
-        self.args = args
-        self.arrays = arrays
-        self.logger = logger
-        self.results = {}
+    def __init__(self, job):
+        super().__init__(job)
+        if self.cur_job.args['job_type'] == 'Variation of Variation with Standard Deviation-based Threshold':
+            self.run()
 
     def run(self):
-        B = self.args['params']['alg_params']['B']
-        B_2 = self.args['params']['alg_params']['B_2']
-        threshold = self.args['params']['alg_params']['threshold']
-
-        print("chans being analyzed: %s" % self.arrays.keys())
+        B = self.cur_job.args['params']['alg_params']['B']
+        B_2 = self.cur_job.args['params']['alg_params']['B_2']
+        threshold = self.cur_job.args['params']['alg_params']['threshold']
+        chans = self.cur_job.get_test_channels()
+        print("chans being analyzed: %s" % chans)
         i = 0
-        for chan, series in self.arrays.items():
-            self.logger.info("analyzing %s (%s of %s)" % (chan, i, len(self.arrays.keys())))
+        for chan, series in self.cur_job.get_ytests().items():
+            ProgressLogger().log("analyzing %s (%s of %s)" % (chan, i, len(chans)))
 
             var = [element[0] for element in normalize_arr(np.array(vh.variation(series, B)).reshape(-1, 1))]
             var_var = [element[0] for element in normalize_arr(np.array(vh.variation(var, B_2)).reshape(-1, 1))]
@@ -34,14 +35,13 @@ class VariationVariationStDev:
             indices = np.where(var_var > mean + (threshold * std))[0]
 
             predicted_anomalies = [1 if i-B-B_2 in indices else 0 for i in range(len(series[:]))]
-            self.results[chan.replace('.csv', 'csv')] = {
+            self.cur_job.results[chan.replace('.csv', 'csv')] = {
                 'variation_arr': var,
                 'variation_variation_arr': var_var,
                 'anom_array': predicted_anomalies,
                 'num_anoms': predicted_anomalies.count(1)
             }
 
-        self.logger.info("variation method complete")
-        self.logger.info("--------------------------------")
+        ProgressLogger().log(("variation method complete"))
+        ProgressLogger().log(("--------------------------------"))
 
-        return self.results

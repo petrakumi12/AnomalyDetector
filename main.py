@@ -4,12 +4,6 @@ from algorithms.AnomalyDetector import AnomalyDetector
 from flask import Flask, render_template, jsonify, request, make_response
 from flask_pymongo import PyMongo
 import helpers.server_functions as server_functions
-import boto3
-
-
-
-# path = r'C:\Users\Petra Kumi\OneDrive - Worcester Polytechnic Institute (wpi.edu)\School\MQP\Python ' \
-#        r'Code\custom_telemanom\telemanom_temp_logs '
 
 app = Flask(__name__)
 app._static_folder = os.path.abspath("templates/static/")
@@ -157,8 +151,8 @@ def get_saved_models():
     """
     res_arr = []
     for file in anomalydetector.bucket.objects.all():
-        id = file.key.replace(".h5", "")
-        job = mongo.db.jobs.find_one({"_id": id})
+        an_id = file.key.replace(".h5", "")
+        job = mongo.db.jobs.find_one({"_id": an_id})
         if job is not None:
             res_arr.append(job)
             print('job', job)
@@ -234,86 +228,8 @@ def clear_jobs_db():
 
 if __name__ == '__main__':
     anomalydetector = AnomalyDetector()  # initialize anomaly detector
-    anomalydetector.load_default_algorithm_params()  # load default parameters in the anomaly detector
-    jobs = threading.Thread(target=server_functions.start_thread, args=[anomalydetector])  # initialize threads
-    jobs.start()  # start jobs threads
+    # clear_jobs_db()
+    thread = threading.Thread(target=anomalydetector.start_thread, args=[])  # initialize threads
+    thread.start()  # start jobs threads
     app.run(threaded=True, debug=True)  # run application
 
-    # app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 4444)), debug=True)
-
-# @app.route('/get_info/<id>', methods=['GET'])
-# def get_info(id):
-#     """
-#     Retrieves result information about complegted job
-#     :param id: id of job
-#     :return: the job json from the database
-#     """
-#     job = mongo.db.jobs.find_one({'_id': id})
-#     job = make_response(jsonify(job), 200)
-#     return job
-
-#
-# @app.route('/get_channels/<subject_name>', methods=['GET'])
-# def get_channels(subject_name):
-#     """
-#     Gets channels of a subject, given their name
-#     :param subject_name: name of subject
-#     :return: array of channel names
-#     """
-#     connection, cursor = db_interactions.connect_db() # connect to Postgres db
-#     chan_array = db_interactions.get_channels(subject_name, cursor)
-#     db_interactions.disconnect_db(connection, cursor)
-#     return chan_array
-
-# @app.route('/get_graph', methods=['POST'])
-# def get_graph_vals():
-#     """
-#     Generates signal values of channels for making graph
-#     :return: dict {times:[],channel_names:[],sig_vals:{chan_name:[]}
-#     """
-#     return server_functions.get_graph_vals(request.get_json(force=True))
-
-# @app.route('/compare_algs/<ids>', methods=['GET'])
-# def compare_algs(ids):
-#     """
-#     Gets jobs from the database matching the requested id's and returns them to user
-#     :param ids: a string containing ids to be compared separated with a comma
-#     :return: a json containing an array of jsons for all requested jobs
-#     """
-#     info_arr = []
-#     for element in ids.split(','):
-#         found_result = mongo.db.jobs.find_one({'_id': element})
-#         info_arr.append(found_result)
-#     return make_response(jsonify({'info': info_arr}), 200)
-
-
-# @app.route('/post_comparison_data', methods=['POST'])
-# def post_comparison_data():
-#     """
-#     Will post data about the comparisons on the database for manipulation
-#     :return: a json saying that the request went through
-#     """
-#     mongo.db.comparison_data.remove({})
-#     print("comparison data posted ")
-#     ids = request.get_json(force=True)
-#     print("ids", ids)
-#     for id in ids['ids']:
-#         data = mongo.db.jobs.find_one({'_id': id})
-#         print("found", data)
-#         mongo.db.comparison_data.insert(data)
-#     return make_response('ok', 200)
-
-#
-# @app.route('/get_comparison_data', methods=['GET'])
-# def get_comparison_data():
-#     """
-#     Will receive data from db about comparisons and send to user
-#     :return: a json of an array containing the job comparison information
-#     """
-#     print("comparison data received")
-#     print("received this", [element for element in mongo.db.comparison_data.find()])
-#     return make_response(jsonify([element for element in mongo.db.comparison_data.find()]), 200)
-
-# '105-SART-June2018-VC', '109-SART-June2018-NT',
-# '111-SART-June2018-MO',
-# '113-SART-June2018-TN', '116-SART-June2018-MD', '106-SART-June2018-MH', '119-SART-June2018-YA']

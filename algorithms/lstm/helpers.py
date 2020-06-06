@@ -17,57 +17,6 @@ cur_path_train = temp_train  # change these two to change location of data to ru
 cur_path_test = temp_test
 
 
-def make_dirs(_id):
-    config = Config("_config_files/config_new.yaml")
-
-    '''Create directories for storing data in repo (using datetime ID) if they don't already exist'''
-
-    # if not config.train or not config.predict:
-    #     if not os.path.isdir('telemanom_temp_logs/%s' % config.use_id):
-    #         raise ValueError("Run ID %s is not valid. If loading prior models or predictions, must provide valid ID.")
-
-
-    paths = ['telemanom_temp_logs',
-             'telemanom_temp_logs/%s' % _id,
-             'telemanom_temp_logs/%s/models' % _id,
-             'telemanom_temp_logs/%s/y_hat' % _id,
-             ]  # petra added last ones
-
-    for p in paths:
-        if not os.path.isdir(p):
-            os.mkdir(p)
-
-
-def setup_logging(_id, logger):
-
-    '''Configure logging object to track parameter settings, training, and evaluation.
-    Args:
-        config(obj): Global object specifying system runtime params.
-    Returns:
-        logger (obj): Logging object
-        _id (str): Unique identifier generated from datetime for storing data/models/results
-    '''
-    config = Config("_config_files/config_new.yaml")
-
-    hdlr = logging.FileHandler('telemanom_temp_logs/%s/params.log' % _id)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.INFO)
-
-    stdout = logging.StreamHandler(sys.stdout)
-    stdout.setLevel(logging.INFO)
-    logger.addHandler(stdout)
-
-    logger.info("Runtime params:")
-    logger.info("----------------")
-    for attr in dir(config):
-        if not "__" in attr and not attr in ['header', 'date_format', 'path_to_config', 'build_group_lookup']:
-            logger.info('%s: %s' % (attr, getattr(config, attr)))
-    logger.info("----------------\n")
-    return logger
-
-
 def load_data(anom, path_train=cur_path_train, path_test=cur_path_test):
     """Load train and test data from repo. If not in repo need to download from source.
 
@@ -143,6 +92,7 @@ def shape_data(arr, train=True):
     # print("train is:", train)
     # print("shape of array before reshaping", np.shape(arr))
     config = Config("_config_files/config_new.yaml")
+    print('arr shape before', np.shape(arr))
 
     data = []
     # print("real range of arr", len(arr))
@@ -151,8 +101,10 @@ def shape_data(arr, train=True):
     for i in range(len(arr) - config.l_s - config.n_predictions):
         data.append(arr[i:i + config.l_s + config.n_predictions])
     data = np.array(data)
+    print('shape arr after', np.shape(data))
 
     assert len(data.shape) == 3
+
 
     if train == True:
         np.random.shuffle(data)

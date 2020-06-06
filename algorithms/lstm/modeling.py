@@ -65,7 +65,7 @@ def load_train_model(lstm):
     :return:
     """
     download_h5(lstm)
-    return load_model(os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
+    return load_model(os.path.join("temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
 
 
 def get_model(anom, X_train, y_train, logger, train=False):
@@ -139,7 +139,7 @@ def get_model(anom, X_train, y_train, logger, train=False):
         plt.legend(['train', 'val'], loc='upper left')
         plt.show()
 
-        model.save(os.path.join("telemanom_temp_logs", anom['run_id'], "models", anom["chan_id"] + ".h5"))
+        model.save(os.path.join("temp_logs", anom['run_id'], "models", anom["chan_id"] + ".h5"))
 
         return model
 
@@ -153,8 +153,8 @@ def upload_h5(model, lstm):
 
 def download_h5(lstm):
     print('cwd',os.getcwd())
-    print('download path', os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.job_id + ".h5"))
-    lstm.bucket.download_file(lstm.config.use_id + '.h5', os.path.join("telemanom_temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
+    print('download path', os.path.join("temp_logs", lstm.config.job_id, "models", lstm.config.job_id + ".h5"))
+    lstm.bucket.download_file(lstm.config.use_id + '.h5', os.path.join("temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
 
 
 def predict_in_batches(y_test, X_test, model, chan_id, run_id):
@@ -220,7 +220,7 @@ def predict_in_batches(y_test, X_test, model, chan_id, run_id):
     # plt.plot(y_hat)
     # plt.title("y hat")
     # plt.show()
-    np.save(os.path.join("telemanom_temp_logs", run_id, "y_hat", chan_id + ".npy"), np.array(y_hat))
+    np.save(os.path.join("temp_logs", run_id, "y_hat", chan_id + ".npy"), np.array(y_hat))
 
     return y_hat
 

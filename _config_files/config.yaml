@@ -1,11 +1,11 @@
 batch_size: 100
 dropout: 0.6
-epochs: 8
+epochs: 2
 error_buffer: 100
 header: [run_id, chan_id, num_anoms, anomaly_sequences, num_values, normalized_error,
   scores]
 l_s: 200
-layers: [85, 85]
+layers: [10, 10]
 loss_metric: mse
 lstm_batch_size: 80
 min_delta: 0.03

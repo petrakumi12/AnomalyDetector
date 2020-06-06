@@ -1,60 +1,47 @@
 import collections
-import csv
-
-from helpers import db_interactions
+from algorithms.MLAlgorithm import MLAlgorithm
 import algorithms.lstm.errors as err
-from algorithms.lstm._globals import Config
 import numpy as np
 
+from algorithms.lstm import helpers
+from helpers.db_interactions import db_arr_to_npy, remove_channel_period, add_channel_period
 
-class Telemanom:
+
+class Telemanom(MLAlgorithm):
     """
     Class that handles running the Telemanom algorithm
     """
 
-    def __init__(self, _id, y_test, y_hats):
-        self._id = _id
-        self.y_test = y_test
-        self.y_hats = y_hats
-        self.results = {}
+    def __init__(self, job):
+        super().__init__(job)
+        print('use ml is', self.cur_job.use_ml)
+        if self.cur_job.args['job_type'] == 'Telemanom' and self.cur_job.use_ml:
+            self.run()
 
-    def run(self, job_db):
-        # config = Config("_config_files/config_new.yaml")
+    def run(self):
+        print('running telemanom')
+        for chan, y_hat in self.get_yhats().items():
 
-        # with open("results/%s.csv" % self._id, "a") as out:
-        #     writer = csv.DictWriter(out, config.header)  # line by line results written to csv
-        #     writer.writeheader()
+            print('chan', chan)
+            print('y hat', y_hat, type(y_hat), np.shape(y_hat))
+            print('get ytests', self.get_ytests(self.config.train))
+            if self.config.train:
+                _, y_test = helpers.shape_data(self.get_ytests(self.config.train)[chan], train=False)
+            else:
+                y_test = self.get_ytests(self.config.train)[chan]
 
-        for chan, y_hat in self.y_hats.items():
-
+            print('y test', y_test, type(y_test), np.shape(y_test))
             # Error processing
-            db_interactions.update_progress(self._id, job_db, 8)  # calculating anomalies
-
-            e_s = err.get_errors(self.y_test, y_hat, chan, self._id, smoothed=True)
-            E_seq, E_seq_scores = err.process_errors(self.y_test, e_s)
+            e_s = err.get_errors(y_test, y_hat, chan, self.cur_job.job_id, smoothed=True)
+            E_seq, E_seq_scores = err.process_errors(y_test, e_s)
 
             errors = np.zeros(len(y_hat))
             for interval in E_seq:
                 for i in range(interval[0], interval[1]):
                     errors[i] = 1
             errors = list(errors)
-
-            # Writing to csv
-            # anom = {
-            #     'run_id': self._id,
-            #     'chan_id': chan,
-            #     'anomaly_sequences': E_seq,
-            #     'num_anoms': len(E_seq),
-            #     'num_total_vals': self.y_test.shape[0]
-            # }
-
-            # writer.writerow(anom)
-
             # Saving results
-            self.results[chan.replace('.csv', 'csv')] = {
-                'anom_array': errors,
-                'num_anoms': collections.Counter(errors)[1]
-            }
+            print('saving telemanom results')
+            self.cur_job.results[remove_channel_period(chan)]['anom_array'] = errors
+            self.cur_job.results[remove_channel_period(chan)]['num_anoms'] = collections.Counter(errors)[1]
 
-        # out.close()
-        return self.results

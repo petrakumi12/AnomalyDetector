@@ -1,20 +1,6 @@
 import psycopg2 as psycopg2
 import numpy as np
 
-progress = {
-    0: 'Processing user input',
-    1: 'Preparing datasets',
-    2: 'Job queued',
-    3: 'Job initialized',
-    4: 'Job in progress - preparing sets for LSTM',
-    5: 'Job in progress - training / loading trained model',
-    6: 'Job in progress - predicting output',
-    7: 'Job in progress - calculating errors',
-    8: 'Job in progress - calculating anomalies',
-    9: 'Job complete',
-    -1: 'Job interrupted - error'
-}
-
 
 def connect_db():
     # connecting to db
@@ -182,23 +168,21 @@ def get_channels(subject_name, cursor):
     return channel_arr
 
 
-# connection,cursor = connect_db()
-# print(get_channels('101-SART-June2018-AS',cursor))
-# disconnect_db(connection,cursor)
-
-###################################### Interactions with mongodb #####################################################
-def create_job(args):
-    args_new = {}
-    for key, val in args.items():
-        args_new[key] = val
-    args_new['progress'] = progress[0]
-    del args_new['jobs_db']
-    args['jobs_db'].insert(args_new)
+def prep_npy_arr_for_db(npy_arr):
+    if type(npy_arr) == np.ndarray:
+        return list(npy_arr)
 
 
-def update_progress(id, job_db, number):
-    job_db.update_one(
-        {'_id': id},
-        {'$set': {'progress': progress[number]}}
-    )
-    print("Progress Update(", id, "): ", progress[number])
+def db_arr_to_npy(a_list):
+    if type(a_list) == list:
+        return np.array(a_list)
+    else:
+        return a_list
+
+
+def add_channel_period(chan):
+    return chan.replace('csv', '.csv')
+
+
+def remove_channel_period(chan):
+    return chan.replace('.csv', 'csv')

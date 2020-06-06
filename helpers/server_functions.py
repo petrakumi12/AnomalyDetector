@@ -3,6 +3,7 @@ from datetime import datetime as dt
 import helpers.db_interactions as db_interactions
 import numpy as np
 import api.api_helpers as api_helpers
+from algorithms.ProgressLogger import ProgressLogger
 
 """
 Server-side helpers for main.py file
@@ -40,9 +41,9 @@ def submit_request(args, anomalydetector):
     Submits anomaly detection job request to queue
     :return: the queue containing all the jobs
     """
-    anomalydetector.anom_logger.info("Request Submitted")
+    ProgressLogger().log("Request Submitted")
     anomalydetector.queue_job(args, anomalydetector.lock)
-    return anomalydetector.queue
+    return anomalydetector.jobs_queue
 
 
 def get_channels(subject_name):
@@ -92,22 +93,3 @@ def get_graph_vals(args):
 
     db_interactions.disconnect_db(connection, cursor)  # disconnect from Postgres
     return final_dict
-
-
-def start_thread(anomalydetector):
-    """
-    Start anomaly detector threads an
-    :param anomalydetector: the AnomalyDetector object
-    :return: None
-    """
-    while True:
-        if len(anomalydetector.queue) != 0:
-            if not anomalydetector.is_running:
-                print('anomalydetector not running')
-                anomalydetector.lock.acquire()
-                args = anomalydetector.queue.pop(0)
-                print('popped from queue')
-                anomalydetector.lock.release()
-                print('starting anomaly detection job')
-                anomalydetector.start_job(args)
-
