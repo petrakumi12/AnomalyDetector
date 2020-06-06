@@ -7,6 +7,7 @@ from algorithms.ProgressLogger import ProgressLogger
 from algorithms.lstm._globals import Config
 from algorithms.lstm.custom_helpers import make_training_set
 from helpers.db_interactions import add_channel_period, db_arr_to_npy
+import numpy as np
 
 
 class MLAlgorithm(Algorithm):
@@ -69,7 +70,7 @@ class MLAlgorithm(Algorithm):
                                  self.cur_job.args['params']['times']['param_2'])
         else:
             for item in self.cur_job.args['params']['sets']['test']:
-                ytest_dict[item['name']] = item['sig_vals'][self.config.l_s:]
+                ytest_dict[item['name']] = np.array([[a] for a in item['sig_vals'][self.config.l_s+1:]])
         return ytest_dict
 
     def get_yhats(self):

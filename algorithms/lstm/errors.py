@@ -24,7 +24,7 @@ def get_errors(y_test, y_hat, chan_id, run_id, smoothed=True):
     """
     config = Config("_config_files/config_new.yaml")
     print('y t', y_test)
-    print('zip', [(y_h, y_t) for y_h, y_t in zip(y_hat, y_test)])
+    print('zip', [(y_h, type(y_t)) for y_h, y_t in zip(y_hat, y_test)])
     e = [abs(y_h - y_t[0]) for y_h, y_t in zip(y_hat, y_test)]
 
     if not smoothed:

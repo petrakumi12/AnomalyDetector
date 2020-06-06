@@ -1,18 +1,2 @@
-batch_size: 100
-dropout: 0.6
-epochs: 2
-error_buffer: 100
-l_s: 200
-layers: [10, 10]
-loss_metric: mse
-lstm_batch_size: 80
-min_delta: 0.03
-n_predictions: 1
-optimizer: adam
-p: 0.0
-patience: 10
-predict: true
-smoothing_perc: 0.04
-train: true
-validation_split: 0.4
-window_size: 5
+{B: 28, B_2: 28, batch_size: 100, l_s: 200, n_predictions: 1, p: 0.0, predict: true,
+  threshold: -0.3, train: false, use_id: 2020-06-05_21.01.09}
