@@ -2,49 +2,14 @@ import shutil
 
 import numpy as np
 import os
-from algorithms.lstm._globals import Config
-import logging
-import sys
+from algorithms.lstm.Config import Config
 import csv
 import pandas as pd
-import algorithms.lstm.custom_helpers as ch
-from keras.utils import to_categorical
-
 
 temp_train = os.path.join(os.getcwd(), 'resources', 'temp', 'train')
 temp_test = os.path.join(os.getcwd(), 'resources', 'temp', 'test')
 cur_path_train = temp_train  # change these two to change location of data to run against
 cur_path_test = temp_test
-
-
-def load_data(anom, path_train=cur_path_train, path_test=cur_path_test):
-    """Load train and test data from repo. If not in repo need to download from source.
-
-    Args:
-        anom (dict): contains anomaly information for a given input stream
-
-    Returns:
-        X_train (np array): array of train inputs with dimensions [timesteps, l_s, input dimensions]
-        y_train (np array): array of train outputs corresponding to true values following each sequence
-        X_test (np array): array of test inputs with dimensions [timesteps, l_s, input dimensions)
-        y_test (np array): array of test outputs corresponding to true values following each sequence
-    """
-    config = Config("_config_files/config_new.yaml")
-
-    try:
-        # path here!!!
-        train = np.load(os.path.join(path_train, anom['chan_id'] + ".npy"))
-        test = np.load(os.path.join(path_test, anom['chan_id'] + ".npy"))
-
-    except:
-        raise ValueError("Source data not found, may need to add data to repo: <link>")
-
-    # shape, split data
-    X_train, y_train = shape_data(train)
-    X_test, y_test = shape_data(test, train=False)
-
-    return X_train, y_train, X_test, y_test
-
 
 def load_train_data(path_train):
     # try:

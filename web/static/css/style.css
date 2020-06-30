@@ -100,6 +100,9 @@ tr {
     cursor: pointer;
 }
 
+#anomaly-detector-name {
+    color: #17A2B8;
+}
 
 /*a {*/
     /*font-size: 1.2em !important;*/

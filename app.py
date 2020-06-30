@@ -1,12 +1,12 @@
 import os
 import threading
-from algorithms.AnomalyDetector import AnomalyDetector
+from AnomalyDetector import AnomalyDetector
 from flask import Flask, render_template, jsonify, request, make_response
 from flask_pymongo import PyMongo
 import helpers.server_functions as server_functions
 
-app = Flask(__name__)
-app._static_folder = os.path.abspath("templates/static/")
+app = Flask(__name__, template_folder='web')
+app._static_folder = os.path.abspath("web/static/")
 app.config['MONGO_URI'] = \
     "mongodb+srv://Kumi:Hg1kbxPcCmYtWI6h@cluster0-atswd.azure.mongodb.net/test?retryWrites=true&w=majority"
 app.config['MONGO_DBNAME'] = 'restdb'
@@ -18,57 +18,48 @@ db = mongo.db
 # Site page routes
 @app.route('/')
 def home():
-    return render_template('index_new.html')
+    return render_template('index.html')
 
 
 @app.route('/results')
 def results():
-    return render_template('results_new.html')
+    return render_template('results.html')
 
 
-@app.route('/compare_algs')
-def compare_algs_page():
-    return render_template('compare_algs.html')
+@app.route('/compareAlgorithms')
+def compare_algorithms():
+    return render_template('compareAlgorithms.html')
 
 
-@app.route('/lstm_parameters')
-def lstm_parameters():
-    return render_template('lstm_parameters.html')
+@app.route('/pickJobParameters')
+def pick_parameters():
+    return render_template('pickJobParameters.html')
 
 
-@app.route('/new_job_prev')
-def new_job_prev():
-    return render_template('new_job_prev.html')
+@app.route('/pickPreviousLSTMModel')
+def pick_previously_saved_model():
+    return render_template('pickPreviousLSTMModel.html')
 
 
-@app.route('/pick_method')
+@app.route('/pickAnomalyDetector')
 def pick_method():
-    return render_template('pick_method.html')
+    return render_template('pickAnomalyDetector.html')
 
 
-@app.route('/pick_comparison')
-def pick_comparison():
-    return render_template('pick_comparison.html')
+@app.route('/submitJob')
+def submit():
+    return render_template('submitJob.html')
 
-
-@app.route('/submitted')
-def submitted():
-    return render_template('submitted.html')
-
-
-@app.route('/lstm_prev_params')
-def lstm_prev_params():
-    return render_template('lstm_prev_params.html')
 
 
 @app.route('/visualize')
 def visualize_submission():
-    return render_template('visualize_submission.html')
+    return render_template('visualizeJobResults.html')
 
 
 # Endpoints for message passing between user and server
 
-@app.route('/submit_request', methods=['POST'])
+@app.route('/submitRequest', methods=['POST'])
 def submit_request():
     """
     Handles requests to start an anomaly detection job:
@@ -82,7 +73,7 @@ def submit_request():
     return make_response({'status': 'success', 'id': req['_id']}, 200)
 
 
-@app.route('/get_jobs', methods=['GET'])
+@app.route('/getJobs', methods=['GET'])
 def get_jobs():
     """
     Retrieves all entries in the job collection of MongoDb
@@ -94,7 +85,7 @@ def get_jobs():
     return make_response({"jobs": final_arr}, 200)
 
 
-@app.route('/delete_entry', methods=['POST'])
+@app.route('/deleteEntry', methods=['POST'])
 def delete_entry():
     """
     Deletes entry in the job collection of MongoDb
@@ -105,7 +96,7 @@ def delete_entry():
     return make_response('ok', 200)
 
 
-@app.route('/get_default_params', methods=['GET'])
+@app.route('/getDefaultParameters', methods=['GET'])
 def get_default_params():
     """
     Gets default parameters for all algorithms
@@ -114,7 +105,7 @@ def get_default_params():
     return make_response(jsonify(anomalydetector.default_algorithm_parameters), 200)
 
 
-@app.route('/get_uploaded_datasets', methods=['GET'])
+@app.route('/getUploadedDatasets', methods=['GET'])
 def get_uploaded_datasets():
     """
     Retrieve all datasets uploaded on the uploaded_datasets collection in MongoDb
@@ -126,7 +117,7 @@ def get_uploaded_datasets():
     return make_response(set_dict, 200)
 
 
-@app.route('/upload_new_datasets', methods=['POST'])
+@app.route('/uploadNewDatasets', methods=['POST'])
 def upload_new_datasets():
     """
     Uploads new datasets to the uploaded_datasets MongoDb collection
@@ -143,7 +134,7 @@ def upload_new_datasets():
     return make_response('ok', 200)
 
 
-@app.route('/get_saved_models', methods=['GET'])
+@app.route('/getSavedModels', methods=['GET'])
 def get_saved_models():
     """
     Retrieves all LSTM models that were saved during previous jobs
@@ -161,7 +152,7 @@ def get_saved_models():
 
 # Server functions just for the API
 
-@app.route('/job_progress', methods=['POST'])
+@app.route('/getJobProgress', methods=['POST'])
 def get_job_status():
     """
     Gets status of job with id requested by user
@@ -174,7 +165,7 @@ def get_job_status():
                           'progress': a_result['progress']}, 200)
 
 
-@app.route('/job_details', methods=['POST'])
+@app.route('/getJobDetails', methods=['POST'])
 def get_job_details():
     """
     Gets all job details for job with id requested by user

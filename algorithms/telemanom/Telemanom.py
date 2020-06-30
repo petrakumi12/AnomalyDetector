@@ -32,7 +32,7 @@ class Telemanom(MLAlgorithm):
 
             print('y test', y_test, type(y_test), np.shape(y_test))
             # Error processing
-            e_s = err.get_errors(y_test, y_hat, chan, self.cur_job.job_id, smoothed=True)
+            e_s = err.get_errors(y_test, y_hat, chan, smoothed=True)
             E_seq, E_seq_scores = err.process_errors(y_test, e_s)
 
             errors = np.zeros(len(y_hat))

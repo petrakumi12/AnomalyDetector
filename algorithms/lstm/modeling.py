@@ -8,7 +8,7 @@ import os
 import io
 import boto3, re
 
-from algorithms.lstm._globals import Config
+from algorithms.lstm.Config import Config
 
 # config
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # suppress tensorflow CPU speedup warnings

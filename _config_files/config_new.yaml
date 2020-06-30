@@ -1,2 +1,2 @@
-{B: 28, B_2: 28, batch_size: 100, l_s: 200, n_predictions: 1, p: 0.0, predict: true,
-  threshold: -0.3, train: false, use_id: 2020-06-05_21.01.09}
+{batch_size: 100, error_buffer: 100, l_s: 200, n_predictions: 1, p: 0.0, predict: true,
+  smoothing_perc: 0.04, train: false, use_id: 2020-06-05_21.01.09, window_size: 5}

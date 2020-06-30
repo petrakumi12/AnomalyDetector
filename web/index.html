@@ -17,8 +17,9 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
-    <script src="static/js/all_pages.js"></script>
-    <script src="static/js/index_new.js"></script>
+    <script src="static/js/allPages.js"></script>
+    <script src="static/js/sessionStorageFunctions.js"></script>
+    <script src="static/js/index.js"></script>
 </head>
 <body id="body">
 
@@ -35,14 +36,20 @@
                 Start New Anomaly Detection Job
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" onclick="save_method_and_next('raw')">From raw signal</a>
+                <a class="dropdown-item" onclick="startNewAnomalyDetectionJob('raw')">
+                    From raw signal
+                </a>
                 <div class="dropdown-divider"></div>
-                <!--<h2 class="dropdown-header" style="font-size: 1em; color: #2e2c2e;">From LSTM-smoothed signal</h2>-->
-                <a class="dropdown-item" onclick="save_method_and_next('LSTM-new')">New LSTM model</a>
-                <a class="dropdown-item" onclick="save_method_and_next('LSTM-prev')">Previously trained LSTM model</a>
+                <a class="dropdown-item" onclick="startNewAnomalyDetectionJob('LSTM-new')">
+                    New LSTM model
+                </a>
+                <a class="dropdown-item" onclick="startNewAnomalyDetectionJob('LSTM-prev')">
+                    Previously trained LSTM model
+                </a>
             </div>
-            <a href="/results" class="btn btn-info mx-3 my-3 btn-lg rounded" role="button" aria-pressed="true">View
-                Previous Jobs</a>
+            <a href="/results" class="btn btn-info mx-3 my-3 btn-lg rounded" role="button" aria-pressed="true">
+                View Previous Jobs
+            </a>
         </div>
     </div>
 </div>

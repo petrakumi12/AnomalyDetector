@@ -16,8 +16,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <script src="static/js/all_pages.js"></script>
-    <script src="static/js/visualize_submission.js"></script>
+    <script src="static/js/allPages.js"></script>
+    <script src="static/js/sessionStorageFunctions.js"></script>
+    <script src="static/js/visualizeJobResults.js"></script>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
@@ -44,7 +45,8 @@
 
 <!--checkboxes-->
 <div class="row align-items-center justify-content-center mt-4">
-    <div class="row no-gutters d-flex align-items-center justify-content-left mx-5" id="signal-type-toggle" style="width: 100%;">
+    <div class="row no-gutters d-flex align-items-center justify-content-left mx-5" id="signal-type-toggle"
+         style="width: 100%;">
         <div class="row no-gutters mx-3 text-left d-flex justify-content-start h-100">Toggle graph curves:</div>
         <div class="col-2 text-left toggle">
             <input type="checkbox" checked id="toggleall_vals" onchange="toggleAllListener(this)">

@@ -19,7 +19,7 @@ from algorithms.lstm import custom_helpers
 import algorithms.lstm.helpers as helpers
 import keras
 from helpers.db_interactions import prep_npy_arr_for_db, remove_channel_period
-from algorithms.lstm._globals import Config
+from algorithms.lstm.Config import Config
 
 
 keras.utils.vis_utils.pydot = pydot
@@ -101,7 +101,7 @@ class LSTM(MLAlgorithm):
 
                     # Error calculations
                     # ====================================================================================================
-                    e = err.get_errors(self.y_test, y_hat, chan, self.cur_job.job_id, smoothed=False)
+                    e = err.get_errors(self.y_test, y_hat, chan, smoothed=False)
 
                     normalized_error = np.mean(e) / np.ptp(self.y_test)
                     # ProgressLogger().log("normalized prediction error: %s" % normalized_error)

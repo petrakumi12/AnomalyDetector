@@ -4,7 +4,7 @@ import boto3
 
 from algorithms.Algorithm import Algorithm
 from algorithms.ProgressLogger import ProgressLogger
-from algorithms.lstm._globals import Config
+from algorithms.lstm.Config import Config
 from algorithms.lstm.custom_helpers import make_training_set
 from helpers.db_interactions import add_channel_period, db_arr_to_npy
 import numpy as np

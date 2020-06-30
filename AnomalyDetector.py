@@ -1,7 +1,7 @@
 import threading
 import boto3
 import yaml
-from algorithms.Job import Job
+from Job import Job
 from algorithms.ProgressLogger import ProgressLogger
 
 class AnomalyDetector:

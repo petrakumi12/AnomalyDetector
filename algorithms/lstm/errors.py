@@ -3,10 +3,10 @@ import pandas as pd
 import more_itertools as mit
 import os
 
-from algorithms.lstm._globals import Config
+from algorithms.lstm.Config import Config
 
 
-def get_errors(y_test, y_hat, chan_id, run_id, smoothed=True):
+def get_errors(y_test, y_hat, chan_id, smoothed=True):
     """
     Calculate the difference between predicted telemetry values and actual values, then smooth residuals using
     ewma to encourage identification of sustained errors/anomalies.

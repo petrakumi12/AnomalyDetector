@@ -19,10 +19,9 @@
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
     <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.5.6/dist/progressbar.js"></script>
-
-    <script src="static/js/all_pages.js"></script>
-    <script src="static/js/submission.js"></script>
-    <script src="static/js/pick_method.js"></script>
+    <script src="static/js/allPages.js"></script>
+    <script src="static/js/sessionStorageFunctions.js"></script>
+    <script src="static/js/pickAnomalyDetector.js"></script>
 
 
 </head>
@@ -30,15 +29,16 @@
 <nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
 <!--/.Navbar-->
 <div id="progress-div"></div>
-<div class="row">
+<div class="row no-gutters">
     <form class="mx-5 my-2" style="width: 100%;">
         <div class="form-group row">
             <label for="job-name-input" class="col-sm-2 col-form-label">Job Name</label>
             <div class="col-sm-4">
-                <input type="text" class="form-control" id="job-name-input" placeholder="Sample Job Name" onkeyup="enable_next()" autocomplete="off">
+                <input type="text" class="form-control" id="job-name-input" placeholder="Sample Job Name"
+                       onkeyup="jobNameInputted()" autocomplete="off">
             </div>
-            <div class="form-check col-sm-6">
-                <input class="form-check-input" type="checkbox" value="" id="date-as-name" onchange="date_as_name()">
+            <div class="form-check col-sm-5 ml-3 mt-1">
+                <input class="form-check-input" type="checkbox" value="" id="date-as-name" onchange="useDateAsName()">
                 <label class="form-check-label" for="date-as-name">
                     Use current time as job name
                 </label>
@@ -50,38 +50,30 @@
                 <input type="text" class="form-control" id="description-input" placeholder="Sample Description Name">
             </div>
         </div>
-         <div class="form-group row">
+        <div class="form-group row">
             <div class="col-sm-2 cur-method">
-               Currently Picked Method:
+                Currently Picked Method:
             </div>
-             <div class="col-sm-4 cur-method" id="picked-method">
-               None
+            <div class="col-sm-4 cur-method" id="picked-method">
+                None
             </div>
         </div>
         <div class="form-group row justify-content-center mx-auto my-auto h-90 py-5" style="width: 100%">
             <div class="form-group col-lg-6 justify-content-center center-block mx-auto my-auto" id="options_here">
-                <!--<div class="form-group row-sm-4 mx-auto">-->
-                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('lstm')">LSTM RNN with Telemanom</button>-->
-                <!--</div>-->
-                <!--<div class="form-group row-sm-4 mx-auto">-->
-                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('ocsvm')">One-Class SVM</button>-->
-                <!--</div>-->
-                <!--<div class="form-group row-sm-4 mx-auto">-->
-                    <!--<button class="btn btn-info btn-block center" type="button" onclick="pick_job_type('stdev')">Standard Deviation</button>-->
-                <!--</div>-->
             </div>
-            <div class="form-group col my-auto d-flex justify-content-center align-items-center mx-3" style="height: 50vh">
+            <div class="form-group col my-auto d-flex justify-content-center align-items-center mx-3"
+                 style="height: 50vh">
                 <div class="card-content my-auto d-flex justify-content-center align-items-center" id="help-div">
                     Click on one of the buttons to learn more
                 </div>
             </div>
         </div>
     </form>
-    <!--footer-->
-    <div id="footer-here"></div>
-    <!--/.footer-->
 </div>
 
+<!--footer-->
+<div id="footer-here"></div>
+<!--/.footer-->
 
 
 </body>

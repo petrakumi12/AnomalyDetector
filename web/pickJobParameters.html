@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anomaly Detector | Pick Parameters</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+    <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.5.6/dist/progressbar.js"></script>
+    <script src="static/js/allPages.js"></script>
+    <script src="static/js/sessionStorageFunctions.js"></script>
+    <!--<script src="static/js/submission.js"></script>-->
+    <script src="static/js/pickJobParameters.js"></script>
+</head>
+<body>
+<!--Navbar-->
+<nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
+<div id="progress-div"></div>
+<!--/.Navbar-->
+
+<div class="row no-gutters">
+    <form class="mx-5 my-0" style="width: 100%">
+        <!--pick sets and sizes-->
+        <div class="form-group row">
+
+            <!--picking train sets-->
+            <div class="col-lg-6" id="train-sets-here">
+                <!--row with label to pick training sets-->
+                <div class="row">
+                    <label for="train-set-db-input" class="col-sm-6 col-form-label">Pick training sets</label>
+                </div>
+                <div class="row">
+                    <!--Select from previously uploaded datasets-->
+                    <div class="col-sm-5">
+                        <select class="form-control" id="train-set-db-input" size="3" multiple searchable>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <!--Upload new dataset-->
+                        <input class="custom-file-input white" id="train-set-upload-input" type="file" accept="csv"
+                               data-height="500" aria-describedby="train-set-upload-input"
+                               onchange="uploadNewDataset(this)" multiple>
+                        <label for="train-set-upload-input" class="custom-file-label text-muted mx-3"
+                               style="height: 100%;"> Or upload new set</label>
+                    </div>
+                    <!--Clear the uploaded dataset-->
+                    <div class="input-group-append">
+                        <button class="input-group-text" id="clear-train-upload">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="col p-0 m-0 pt-4 align-items-center justify-content-left" id="training-set-section-inputs">
+                    <div class="row no-gutters" style="width: 100%">
+                        <label for="start-time-input">
+                            Choose start and end datapoints of training dataset
+                        </label>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="start-time-input" class="form-control" type="number"
+                                   placeholder="Pick starting datapoint">
+                        </div>
+                        <div class="col-6">
+                            <input id="end-time-input" class="form-control" type="number"
+                                   placeholder="Pick ending datapoint">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--picking test sets-->
+            <div class="col-lg-6" id="test-sets-here">
+                <!--row with label to pick testing sets-->
+                <div class="row">
+                    <label for="test-set-db-input" class="col-sm-6 col-form-label">Pick testing sets</label>
+                </div>
+                <div class="row">
+                    <!--Select from previously uploaded datasets-->
+                    <div class="col-sm-5">
+                        <select class="form-control" id="test-set-db-input" size="3" multiple searchable>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <!--Upload new dataset-->
+                        <input class="custom-file-input white" id="test-set-upload-input" type="file" accept="csv"
+                               data-height="500" aria-describedby="test-set-upload-input"
+                               onchange="uploadNewDataset(this)" multiple>
+                        <label for="train-set-upload-input" class="custom-file-label text-muted mx-3"
+                               style="height: 100%;"> Or upload new set</label>
+                    </div>
+                    <!--Clear the uploaded dataset-->
+                    <div class="input-group-append">
+                        <button class="input-group-text" id="clear-test-upload">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="col d-flex justify-content-left text-left px-0">
+                    <div class="form-check row-sm-12 my-2">
+                        <input class="form-check-input" id="same-set-check" type="checkbox" value=""
+                               onchange="checkSameTrainTestSets(this)">
+                        <label for="same-set-check" class="form-check-label" id="same-set-check-label">
+                            Select the same testing sets as training sets
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="train-times-here"> <!--picking times for train test sets-->
+            </div>
+
+            <!--pick parameters-->
+            <div class="form-group row no-gutters w-100 justify-content-center mt-4" id="parameter-table">
+                <div class="row no-gutters w-100 center border-bottom border-top justify-content-center card-header">
+                    Pick
+                    Parameters
+                    (click on
+                    header name to restore defaults for section, or click individual variable names)
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--footer-->
+<div id="footer-here"></div>
+<!--/.footer-->
+</body>
+</html>

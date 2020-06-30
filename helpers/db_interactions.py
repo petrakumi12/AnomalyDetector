@@ -1,20 +1,29 @@
 import psycopg2 as psycopg2
 import numpy as np
+import _access_keys as ak
 
 
 def connect_db():
-    # connecting to db
-    connection = psycopg2.connect(user="postgres",
-                                  password="jhA-j4X-ZqI-LTX",
-                                  host="esolovey-vm1.wpi.edu",
-                                  port="5432",
-                                  database="studies")
+    """
+    Opens a connection to Postgres db
+    :return: connection object and cursor
+    """
+    connection = psycopg2.connect(user=ak.postgres_user,
+                                  password=ak.postgres_pass,
+                                  host=ak.postgres_host,
+                                  port=ak.postgres_port,
+                                  database=ak.postgres_database)
     cursor = connection.cursor()
     return connection, cursor
 
 
 def disconnect_db(connection, cursor):
-    # closing database connection.
+    """
+    Closes the connection to Postgres db
+    :param connection: connection object to db
+    :param cursor: pointer to db
+    :return:
+    """
     if connection:
         cursor.close()
         connection.close()
@@ -23,12 +32,12 @@ def disconnect_db(connection, cursor):
 
 def get_sig_val_as_arr(cursor, subject_name, chan_name):
     """
-    takes a subject name and channel as input
+    Takes a subject name and channel as input
     outputs numpy array of time and value params
     :param subject_name: name of subject eg P103-R-RL
     :param chan_name: name of channel eg A-DC1
     :param cursor: cursor for pointing at db
-    :return: arr: numpy arr with 2 columns, first one time, second value
+    :return: processed_arr: numpy arr with 2 columns, first one time, second value
     """
     time_val = []
     try:
@@ -42,27 +51,27 @@ def get_sig_val_as_arr(cursor, subject_name, chan_name):
                               "Order by time_ms"
 
         cursor.execute(select_time_and_val, (subject_name, chan_name))
-        time_val = cursor.fetchall()
+        time_signal_arr = cursor.fetchall()
+
     except (Exception, psycopg2.Error) as error:
         print("Error while fetching data from PostgreSQL:", error)
 
-    arr = np.array(time_val)
-    print(np.shape(arr))
+    time_signal_arr = np.array(time_signal_arr)
+    print(np.shape(time_signal_arr))
 
     # handling duplicate rows
     prev_row = None
-    new_arr = []
-    for i in range(len(arr[:, 0])):
-        if prev_row != arr[i, 0]:
-            new_arr.append(arr[i])
+    processed_arr = []
+    for i in range(len(time_signal_arr[:, 0])):
+        if prev_row != time_signal_arr[i, 0]:
+            processed_arr.append(time_signal_arr[i])
         else:
-            print('repeated val in subject', subject_name, 'idx', i, 'time', arr[i])
-        prev_row = arr[i, 0]
-    new_arr = np.vstack(new_arr)
-    # print('new_arr shape',np.shape(new_arr))
-    # print('arr shape',np.shape(arr))
-    arr = new_arr
-    return arr
+            print('repeated val in subject', subject_name, 'idx', i, 'time', time_signal_arr[i])
+        prev_row = time_signal_arr[i, 0]
+
+    # reshaping array
+    processed_arr = np.vstack(processed_arr)
+    return processed_arr
 
 
 def get_event_ids_names_map(subject_name, cursor):

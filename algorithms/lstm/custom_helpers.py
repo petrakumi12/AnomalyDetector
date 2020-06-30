@@ -9,7 +9,7 @@ encoded_vals = {}
 
 def make_training_set(train_arrays, start=None, end=None):
     """
-    formats training data to make ready for training of telemanom
+    Formats training data to make ready for training of telemanom
     concatenates all channels together in one array with columns = [signal_val, event, chan_name]
     :param train_arrays: array of dictionaries containing data to be used for training
     :param start:
