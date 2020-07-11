@@ -1,5 +1,5 @@
 from algorithms.Algorithm import Algorithm
-from algorithms.lstm import custom_helpers
+from algorithms.lstm.DataPrepper import DataPrepper
 
 class Raw(Algorithm):
     """
@@ -10,4 +10,4 @@ class Raw(Algorithm):
 
         if 'LSTM' not in self.cur_job.args['signal_type']:
             # if not using LSTM, then only make sure params have right types and run job
-            self.cur_job.args = custom_helpers.convert_args_to_numeric(self.cur_job.args)
+            self.cur_job.args = DataPrepper().convert_args_to_numeric(self.cur_job.args)

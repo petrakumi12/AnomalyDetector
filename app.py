@@ -3,12 +3,12 @@ import threading
 from AnomalyDetector import AnomalyDetector
 from flask import Flask, render_template, jsonify, request, make_response
 from flask_pymongo import PyMongo
-import helpers.server_functions as server_functions
+from helpers.Server import Server
+import _access_keys as ak
 
-app = Flask(__name__, template_folder='web')
-app._static_folder = os.path.abspath("web/static/")
-app.config['MONGO_URI'] = \
-    "mongodb+srv://Kumi:Hg1kbxPcCmYtWI6h@cluster0-atswd.azure.mongodb.net/test?retryWrites=true&w=majority"
+app = Flask(__name__, template_folder='client')
+app._static_folder = os.path.abspath("client/static/")
+app.config['MONGO_URI'] = ak.mongodb_uri
 app.config['MONGO_DBNAME'] = 'restdb'
 
 mongo = PyMongo(app)
@@ -68,8 +68,8 @@ def submit_request():
     :return: string with status and id of request
     """
     req = request.get_json(force=True)  # get request as json
-    req = server_functions.prepare_request(req, mongo, anomalydetector)  # prepare request to submit to queue
-    server_functions.submit_request(req, anomalydetector)  # submit request to queue
+    req = Server().prepare_request(req, mongo, anomalydetector)  # prepare request to submit to queue
+    Server().submit_request(req, anomalydetector)  # submit request to queue
     return make_response({'status': 'success', 'id': req['_id']}, 200)
 
 
@@ -185,8 +185,8 @@ def save_datasets():
     """
     subject_arr = ['101-SART-June2018-AS', '102-SART-June2018-AS']
     for subject in subject_arr:
-        for chan in server_functions.get_channels(subject):
-            data = server_functions.get_graph_vals({
+        for chan in Server().get_channels(subject):
+            data = Server().get_graph_vals({
                 'subject_name': subject,
                 'chan_arr': [chan]
             })

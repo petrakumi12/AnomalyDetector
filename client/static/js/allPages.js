@@ -108,11 +108,17 @@ function addNavBar() {
     };
 
     for (let key of Object.keys(pairs)) {
-        let el = document.createElement('a');
+        let el = document.createElement('button');
         el.classList.add('dropdown-item');
         el.onclick = function () {
-            updateSessionStorage('signal_type', pairs[key], 'add');
-            startAnomalyDetectionJob(pairs[key])
+            try {
+                updateSessionStorage('signal_type', pairs[key], 'add');
+            } catch {
+                initializeSessionStorage();
+                updateSessionStorage('signal_type', pairs[key], 'add');
+            }
+
+            startNewAnomalyDetectionJob(pairs[key])
         };
         el.innerText = key;
         newJobDropdowns.appendChild(el);
@@ -181,11 +187,19 @@ function addFooter() {
 
 }
 
+/**
+ * Initializes a new anomaly detection job submission
+ * by updating sessionStorage signal_type parameter
+ * to the signal type selected by the user, then moving to next page of submission.
+ * @param signalType type of signal selected by user to be used in the anomaly detection job
+ */
+function startNewAnomalyDetectionJob(signalType) {
+    updateSessionStorage('signal_type', signalType, 'add');
+    signalIsLSTMPrev() ? window.location.href = '/pickPreviousLSTMModel' : window.location.href = '/pickAnomalyDetector';
+}
 
 /**
  * Progresses to the next stage of job submission.
- * When user is in the parameter picking page, the user_uploads parameter is removed
- * and a small timeout is added to ensure sessionStorage is fully updated before moving on to the next page.
  */
 function next() {
     let pageTitle = document.title;
@@ -197,11 +211,6 @@ function next() {
             window.location.href = '/pickAnomalyDetector';
             break;
         case "Anomaly Detector | Pick Parameters":
-            console.log('BEFORE FINAL');
-            logSessionStorage();
-            paramsToUserUploads();
-            console.log('FINAL SESS STORE');
-            logSessionStorage();
             window.location.href = '/submitJob';
             break;
     }

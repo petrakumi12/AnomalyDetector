@@ -17,6 +17,7 @@ let userUploadsDict = {
 window.onload = function () {
     populateWithDefaultParameters('all').then(_ => { //populate all parameter inputs with default params
         getUploadedDatasets().then(_ => { //get names of datasets that have been uploaded to mongodb previously
+            enableDisableOverlay(); //remove overlay so user can access the input boxes
             updateSessionStorage('user_uploads', userUploadsDict, 'add'); //add user_uploads section to sessionStorage
             addNavBar(); //add navbar
             updateProgressBar(3.0); //update progress bar to third step
@@ -107,9 +108,12 @@ function populateSetSelectors() {
 /**
  * Retrieves the data from files uploaded from user's local storage.
  * @param fileList a fileList object containing information about uploaded files.
+ * @param type train or test
  * @returns {Promise<void>}
  */
-async function uploadNewDataset(fileList) {
+async function uploadNewDataset(fileList, type) {
+    enableDisableOverlay();
+    emptyUserUploadsByType(type);
 
     // FileList object
     let files = fileList.files;
@@ -124,17 +128,19 @@ async function uploadNewDataset(fileList) {
         fileNameList.push(f.name);
     }
 
+
     //if there are no elements in the list of file names, then replace with preset statement
     fileNameList[0] === "" ? fileNameList = 'Or upload new set' : {};
 
     //update text of fileList elements
-    let nextSibling = fileList.nextElementSibling;
-    nextSibling.innerText = fileNameList;
+    let label = document.getElementById(`${type}-set-upload-label`);
+    label.innerText = fileNameList;
 
     setTimeout(_ => {
         // disable multiselect and assign values to start end time
-        enableOrDisableMultiSelect(fileList.id.split("-")[0], true);
+        enableOrDisableMultiSelect(type, true);
         setTrainingSetSectionPoints();
+        enableDisableOverlay();
     }, 500);
 
 
@@ -162,7 +168,7 @@ async function uploadNewDataset(fileList) {
         let formattedData = formatDataForUserUploadsArray(name, signalValuesCol, eventValuesCol);
         //add to user_uploads in sessionStorage
         console.log('entry data', formattedData);
-        updateSessionStorageUserUploads(formattedData, 'user_upload', id.split('-')[0])
+        updateSessionStorageUserUploads(formattedData, 'user_upload', id.split('-')[0], true)
     }
 
     /**
@@ -183,11 +189,11 @@ async function uploadNewDataset(fileList) {
  * @param type train or test to denote which upload box to disable and which multiselect to enable
  */
 function clearUserUploads(type) {
-    let uploadInputId = type + 'set-upload-input';
+    let uploadInputId = type + '-set-upload-input';
     //remove the previously uploaded file
     document.getElementById(uploadInputId).parentElement.innerHTML = '<input type="file" data-height="500" class="custom-file-input white" id=' + uploadInputId + ' ' +
-        'aria-describedby="test-set-upload-input" accept=".csv" onchange="uploadNewDataset(this)">' +
-        '<label class="custom-file-label text-muted"  style="height:100%"  for=' + uploadInputId + '>Or upload new set</label>';
+        'aria-describedby="' + uploadInputId + '" accept=".csv" onchange="uploadNewDataset(this, ' + type + ')">' +
+        '<label class="custom-file-label text-muted mx-3"  style="height:100%"  for=' + uploadInputId + ' id="' + type + '-set-upload-label">Or upload new set</label>';
     // enable multiselect
     enableOrDisableMultiSelect(type, false);
 }
@@ -223,38 +229,18 @@ function addListeners() {
      * @param type train or test
      */
     function addMultiselectListeners(type) {
-
-        let multiSelectInput = document.getElementById(`${type}-set-db-input`);
-        multiSelectInput.onclick = _ => processSelectedDataset(type);
-
-        /**
-         * Processes the datasets selected by user on a multiselect input.
-         * This entails getting signal values and events of the given dataset as arrays, formatting as dictionary,
-         * adding to user_uploads key in sessionStorage, then calling function to disable upload button and set datapoints
-         * for training set section.
-         */
-        function processSelectedDataset(type) {
-            $(`#${type}-set-db-input`)
-                .val()
-                .map(datasetName => {
-                    let signalValuesArray = allDbDatasets[datasetName]; //array of dataset's raw signal values
-                    let emptyEventsArray = new Array(allDbDatasets[datasetName].length).fill(0); //empty array that will be populated with events if any
-                    //dataset info formatted as dictionary
-                    let formattedData = formatDataForUserUploadsArray(datasetName, signalValuesArray, emptyEventsArray);
-                    updateSessionStorageUserUploads(formattedData, 'prev_datasets', type).then(_ => {
-                        checkToDisableDatasetUpload(); // if user uploaded new set from local storage then need to disable multiselect
-                        setTrainingSetSectionPoints(); // set datapoints for starting and ending section from which LSTM will train
-                    })
-                });
-        }
-
-        /**
-         * Disables the button to upload new datasets if user has selected one through the multiselect input
-         */
-        function checkToDisableDatasetUpload() {
-            let condition = $(`#${type}-set-db-input`).val().length > 0;
-            condition ? enableOrDisableDatasetUpload(type, true) : enableOrDisableDatasetUpload(type, false);
-        }
+        $(`#${type}-set-db-input`).change(function () {
+            // emptyUserUploadsByType(type);
+            let formattedArray = $(`#${type}-set-db-input`).val().map(datasetName => {
+                console.log('updating val', datasetName);
+                let signalValuesArray = allDbDatasets[datasetName]; //array of dataset's raw signal values
+                let emptyEventsArray = new Array(allDbDatasets[datasetName].length).fill(0); //empty array that will be populated with events if any
+                //dataset info formatted as dictionary
+                return formatDataForUserUploadsArray(datasetName, signalValuesArray, emptyEventsArray);
+            });
+            updateSessionStorageUserUploads(formattedArray, 'prev_datasets', type, false);
+            setTrainingSetSectionPoints(); // set datapoints for starting and ending section from which LSTM will train
+        });
     }
 
     /**
@@ -262,7 +248,7 @@ function addListeners() {
      */
     function addFormListener() {
         for (let aMultiSelect of document.getElementsByTagName('form')) {
-            aMultiSelect.onchange = _ => enableOrDisableNextBtn();
+            aMultiSelect.onchange = _ => setTimeout(e => enableOrDisableNextBtn(), 500);
         }
 
 
@@ -312,7 +298,6 @@ function addListeners() {
  */
 async function getAllUserParameterInputs() {
     // train and test sets
-    console.log('param dict here', parameterDict);
     let datasetNameArray = await getSelectedDatasets();
     for (let type of Object.keys(datasetNameArray)) {
         parameterDict.sets[type] = datasetNameArray[type];
@@ -322,6 +307,7 @@ async function getAllUserParameterInputs() {
 
     // all other algorithm parameters
     parameterDict.alg_params = getInputtedAlgorithmParameters();
+    console.log('param dict here', parameterDict);
     return parameterDict;
 }
 
@@ -334,7 +320,6 @@ function uploadDatasetsToDatabase() {
     //checking what items need to be uploaded to database permanently
     let toUpload = []; //array with items that will be uploaded to Mongo
     logSessionStorage();
-    //TODO start from here
     for (let type of ['train', 'test']) {
         let storageByType = parseSessionStorage().params.sets[type];
         if (storageByType === 'user_upload') {
@@ -397,7 +382,7 @@ function getSelectedDatasets() {
         if (inputMultiSelect !== null) {
             // if yes then update nameDictionary with 'upload'
             if (inputMultiSelect.disabled === true) {
-                nameDictionary[type] = ['upload']
+                nameDictionary[type] = document.getElementById(type + '-set-upload-label').innerText;
             } else {
                 // if no then get all selected names from multiselect inputs
                 let selectedArray = [];
@@ -422,16 +407,15 @@ function checkSameTrainTestSets(checkBox) {
         if (parseSessionStorage().params.sets.types.train === "prev_datasets") {
             document.getElementById('test-set-db-input').value = document.getElementById('train-set-db-input').value;
         } else {
-            console.log(document.getElementById('train-set-upload-input').files);
             let btnUpload = document.getElementById('test-set-upload-input');
             btnUpload.files = document.getElementById('train-set-upload-input').files;
-            uploadNewDataset(btnUpload)
+            uploadNewDataset(btnUpload, 'test')
         }
-    // if checkbox not checked then empty the training and testing set inputs
+        // if checkbox not checked then empty the training and testing set inputs
     } else {
-        for(let element of ['train', 'test']){
+        for (let element of ['train', 'test']) {
             document.getElementById(`${element}-set-db-input`).value = '';
-        clearUserUploads(element);
+            clearUserUploads(element);
         }
     }
 }
@@ -600,8 +584,7 @@ function enableOrDisableDatasetUpload(type, willDisable) {
  * @param willDisable boolean true if the input will be disabled
  */
 function enableOrDisableMultiSelect(type, willDisable) {
-    let multiSelectInputId = type + 'set-db-input';
-    let multi = document.getElementById(multiSelectInputId);
+    let multi = document.getElementById(`${type}-set-db-input`);
     !willDisable ? multi.value = '' : {};
     multi.disabled = willDisable;
 }
@@ -621,6 +604,7 @@ function formatDataForUserUploadsArray(setName, setSignalVals, setEvents) {
     }
 }
 
+
 /**
  * Updates the user_uploads parameter of sessionStorage
  * @param data the data to add to user_uploads
@@ -628,21 +612,31 @@ function formatDataForUserUploadsArray(setName, setSignalVals, setEvents) {
  * @param trainOrTest train or test
  * @returns {Promise<void>}
  */
-async function updateSessionStorageUserUploads(data, selectionType, trainOrTest) {
-    logSessionStorage();
+function updateSessionStorageUserUploads(data, selectionType, trainOrTest, willAppend) {
+    // logSessionStorage();
     let userUploads = parseSessionStorage().user_uploads;
-    await userUploads[trainOrTest].push(data);
+    if (willAppend) {
+        userUploads[trainOrTest].push(data);
+    } else {
+        userUploads[trainOrTest] = data;
+    }
     userUploads.types[trainOrTest] = selectionType;
     updateSessionStorage('user_uploads', userUploads, 'add');
-    logSessionStorage()
+    logSessionStorage();
 }
+
+async function emptyUserUploadsByType(trainOrTest) {
+    let userUploads = parseSessionStorage().user_uploads;
+    userUploads[trainOrTest] = [];
+    await updateSessionStorage('user_uploads', userUploads, 'add');
+}
+
 
 /**
  * Adds data located in user_uploads key to params key in sessionStorage
  */
 function userUploadsToParams() {
     getAllUserParameterInputs().then(allAlgorithmParameters => {
-        console.log('all alg params', allAlgorithmParameters);
         allAlgorithmParameters.sets = parseSessionStorage().user_uploads;
         updateSessionStorage('params', allAlgorithmParameters, 'add');
     })
@@ -659,4 +653,11 @@ function paramsToUserUploads() {
     newParams.alg_params = parseSessionStorage().params.alg_params;
     updateSessionStorage('params', newParams, 'add');
     updateSessionStorage('user_uploads', '', 'remove');
+}
+
+/**
+ * Shows or hides an overlay to entire screen. Used while processing an element to avoid overwriting.
+ */
+function enableDisableOverlay() {
+    $("#document-cover").toggle()
 }

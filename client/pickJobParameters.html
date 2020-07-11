@@ -29,6 +29,10 @@
 <div id="progress-div"></div>
 <!--/.Navbar-->
 
+<div style="width: 100%; height: 100%; position: absolute; left: 0; top: 0; z-index: 100; background-color: rgba(0,0,0,0.5)"
+     id="document-cover"></div>
+
+
 <div class="row no-gutters">
     <form class="mx-5 my-0" style="width: 100%">
         <!--pick sets and sizes-->
@@ -50,8 +54,9 @@
                         <!--Upload new dataset-->
                         <input class="custom-file-input white" id="train-set-upload-input" type="file" accept="csv"
                                data-height="500" aria-describedby="train-set-upload-input"
-                               onchange="uploadNewDataset(this)" multiple>
+                               onchange="uploadNewDataset(this, 'train')" multiple>
                         <label for="train-set-upload-input" class="custom-file-label text-muted mx-3"
+                               id="train-set-upload-label"
                                style="height: 100%;"> Or upload new set</label>
                     </div>
                     <!--Clear the uploaded dataset-->
@@ -96,8 +101,9 @@
                         <!--Upload new dataset-->
                         <input class="custom-file-input white" id="test-set-upload-input" type="file" accept="csv"
                                data-height="500" aria-describedby="test-set-upload-input"
-                               onchange="uploadNewDataset(this)" multiple>
+                               onchange="uploadNewDataset(this, 'test')" multiple>
                         <label for="train-set-upload-input" class="custom-file-label text-muted mx-3"
+                               id="test-set-upload-label"
                                style="height: 100%;"> Or upload new set</label>
                     </div>
                     <!--Clear the uploaded dataset-->

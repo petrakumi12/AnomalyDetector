@@ -1,10 +1,12 @@
-let savedLSTMModels;
+// let savedLSTMModels;
 window.onload = function () {
     updateSessionStorage('job_type', 'LSTM-prev', 'add'); //update session storage with LSTM-prev selection
     addNavBar();
     updateProgressBar(1.0);
     getSavedLSTMModels()
-        .then(loadAccordion(savedLSTMModels))
+        .then(savedLSTMModels => {
+            loadAccordion(savedLSTMModels)
+        })
 };
 
 /**
@@ -12,17 +14,19 @@ window.onload = function () {
  * @returns {Promise<void>}
  */
 async function getSavedLSTMModels() {
+    let savedLSTMModels = [];
     await fetch('/getSavedModels', {
         method: 'GET',
     })
         .then(response => response.json())
-        .then(response => savedLSTMModels = response)
+        .then(response => savedLSTMModels = response);
+    return savedLSTMModels
 }
 
 /**
  * Loads the accordion elements containing all info on previously trained LSTMs
  */
-function loadAccordion() {
+function loadAccordion(savedLSTMModels) {
     //iterate through all lstm models
     for (let i = 0; i < savedLSTMModels.length; i++) {
         //group contained in one accordion
@@ -54,7 +58,7 @@ function loadAccordion() {
         //all the params
         let allParameters = "";
         for (let aparam of Object.keys(savedLSTMModels[i].params.alg_params)) {
-            allParameters += '<i>' + aparam + ':</i> ' + input[i].params.alg_params[aparam] + ", "
+            allParameters += '<i>' + aparam + ':</i> ' + savedLSTMModels[i].params.alg_params[aparam] + ", "
         }
         allParameters.slice(0, allParameters.length - 2);
         //appending them all to collapsibleContent
@@ -67,20 +71,22 @@ function loadAccordion() {
         oneAccordionGroup.appendChild(collapsibleContent);
         document.getElementById('accordionExample').appendChild(oneAccordionGroup);
         //add listener to title button
-        addTitleButtonListener(titleButton, collapsibleContent);
+        addTitleButtonListener(titleButton, collapsibleContent, titleContainer, i);
+    }
+
+    /**
+     * Adds listener to button that contains title of previously trained LSTM
+     * @param titleButton button element
+     * @param collapsibleContent div that contains all content for one collapsible element
+     */
+    function addTitleButtonListener(titleButton, collapsibleContent, titleContainer, number) {
+        titleButton.addEventListener('click', _ => {
+            enableNextButton();
+            updateSessionStorage('prev_model_id', titleContainer.id, 'add');
+            var classList = collapsibleContent.classList;
+            classList.contains('show') ? $(`#collapse${String(number)}`).collapse('hide') : $(`#collapse${String(number)}`).collapse('show')
+        });
     }
 }
 
-/**
- * Adds listener to button that contains title of previously trained LSTM
- * @param titleButton button element
- * @param collapsibleContent div that contains all content for one collapsible element
- */
-function addTitleButtonListener(titleButton, collapsibleContent) {
-    titleButton.addEventListener('click', _ => {
-        enableNextButton();
-        updateSessionStorage('prev_model_id', titleContainer.id, 'add');
-        var classList = collapsibleContent.classList;
-        classList.contains('show') ? $(`#collapse${String(i)}`).collapse('hide') : $(`#collapse${String(i)}`).collapse('show')
-    });
-}
+

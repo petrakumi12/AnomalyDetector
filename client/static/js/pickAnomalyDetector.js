@@ -67,7 +67,7 @@ function generateAlgorithmBtns() {
             updateCurrentlyPickedMethod(algorithmName);
             //update sessionStorage parameters
             updateSessionStorage('job_type', algorithmName, 'add');
-            updateSessionStorage('job_desc', algorithmDescriptions[algorithmName], 'add');
+            updateSessionStorage('job_desc', $('#description-input').val(), 'add');
             //check if next button should be enabled
             checkToEnableNextButton();
         };

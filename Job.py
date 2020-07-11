@@ -4,13 +4,13 @@ from pathlib import Path
 
 from algorithms.ProgressLogger import ProgressLogger
 from algorithms.Raw import Raw
-from algorithms.lstm import custom_helpers
+from algorithms.lstm.DataPrepper import DataPrepper
 from algorithms.lstm.LSTM import LSTM
 from algorithms.telemanom.Telemanom import Telemanom
 from algorithms.variation_algorithms.VariationVariationStDev import VariationVariationStDev
 from algorithms.variation_algorithms.VariationPercentile import VariationPercentile
 from algorithms.variation_algorithms.VariationStandardDeviation import VariationStandardDeviation
-from helpers.db_interactions import db_arr_to_npy
+from helpers.DbInteractions import DbInteractions
 
 
 class Job:
@@ -81,7 +81,7 @@ class Job:
         self.update_progress(0)
 
         # first, reformat inputted datasets to make usable
-        self.args = custom_helpers.reformat_datasets(self.args)
+        self.args = DataPrepper().reformat_datasets(self.args)
         self.db.update_one(
             {'_id': self.job_id},
             {'$set': {'params': self.args['params']}}
@@ -143,7 +143,7 @@ class Job:
     def get_ytests(self):
         ytest_dict = {}
         for item in self.args['params']['sets']['test']:
-            ytest_dict[item['name']] = db_arr_to_npy(item['sig_vals'])
+            ytest_dict[item['name']] = DbInteractions().db_arr_to_npy(item['sig_vals'])
         return ytest_dict
 
     def get_test_channels(self):

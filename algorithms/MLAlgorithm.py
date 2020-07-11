@@ -5,8 +5,8 @@ import boto3
 from algorithms.Algorithm import Algorithm
 from algorithms.ProgressLogger import ProgressLogger
 from algorithms.lstm.Config import Config
-from algorithms.lstm.custom_helpers import make_training_set
-from helpers.db_interactions import add_channel_period, db_arr_to_npy
+from algorithms.lstm.DataPrepper import DataPrepper
+from helpers.DbInteractions import DbInteractions
 import numpy as np
 
 
@@ -63,14 +63,14 @@ class MLAlgorithm(Algorithm):
 
     def get_ytests(self, train):
         ytest_dict = {}
-        if train:
-            for item in self.cur_job.args['params']['sets']['test']:
-                ytest_dict[item['name']]= make_training_set([item],
-                                 self.cur_job.args['params']['times']['param_1'],
-                                 self.cur_job.args['params']['times']['param_2'])
-        else:
-            for item in self.cur_job.args['params']['sets']['test']:
-                ytest_dict[item['name']] = np.array([[a] for a in item['sig_vals'][self.config.l_s+1:]])
+        # if train:
+        #     for item in self.cur_job.args['params']['sets']['test']:
+        #         ytest_dict[item['name']]= DataPrepper().make_training_set([item],
+        #                          self.cur_job.args['params']['times']['param_1'],
+        #                          self.cur_job.args['params']['times']['param_2'])
+        # else:
+        for item in self.cur_job.args['params']['sets']['test']:
+            ytest_dict[item['name']] = np.array([[a] for a in item['sig_vals'][self.config.l_s+1:]])
         return ytest_dict
 
     def get_yhats(self):
@@ -78,6 +78,6 @@ class MLAlgorithm(Algorithm):
         results = self.cur_job.results
         for chan in self.cur_job.results.keys():
             y_hat = results[chan]['smoothed_signal']
-            yhat_dict[add_channel_period(chan)] = db_arr_to_npy(y_hat)
+            yhat_dict[DbInteractions().add_channel_period(chan)] = DbInteractions().db_arr_to_npy(y_hat)
         print('get yhats:', yhat_dict)
         return yhat_dict

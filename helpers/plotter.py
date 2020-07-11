@@ -33,3 +33,13 @@ def plot_telemanom_anomalies(y_test, y_hat, anom, path_train):
     plt.xlabel('time in ms')
     plt.ylabel('signal_normalized')
     plt.show()
+
+def plot_loss(history, anom):
+    # loss plot
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss for ' + anom['chan_id'])
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.show()

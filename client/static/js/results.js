@@ -14,8 +14,8 @@ let indexOnIdCheckbox, indexOnNameCheckbox, indexOnSignalCheckbox, indexOnJobTyp
 
 
 window.onload = function () {
-    updateGlobals(); //update global variables
     addNavBar();
+    updateGlobals(); //update global variables
     //load all jobs in the database
     loadSubmissions().then(() => {
         updateSubmissionCount(allSubmissions.length);
@@ -105,7 +105,7 @@ let updateTable = function (submissions) {
 
         //add listener for row to show modal popup
         tableRow.onclick = function () {
-            populateModal(project);
+            populateModal(submission);
             modal.style.display = "block";
         };
 
@@ -169,7 +169,7 @@ function updateGlobals() {
      * Updates the variables of the table
      */
     function updateTableVariables() {
-        indexedTable = document.getElementById('indexedTable');
+        indexedTable = document.getElementById('indexedProjectsTable');
         indexedTBody = indexedTable.tBodies[0];
         searchInput = document.getElementById('searchInput');
         countBadge = document.getElementById('countBadge');
@@ -268,7 +268,7 @@ function populateModal(submission) {
     if (submission.params.sets.train.length !== 0) {
         let trainText = '<b>Training Sets: </b>' + reduceListOfSets(submission.params.sets.train, false) +
             " (Total length: " + calculateTrainTotalLen(submission.params.sets.train) + ", " +
-            "Trained on " + datum.params.times.param_1 + " to " + submission.params.times.param_2 + ") ";
+            "Trained on " + submission.params.times.param_1 + " to " + submission.params.times.param_2 + ") ";
         modalContent.splice(4, 0, trainText)
     }
 

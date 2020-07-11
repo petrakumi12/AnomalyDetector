@@ -2,13 +2,8 @@
 
 # coding: utf-8
 
-
 import yaml
-import json
-import sys
 import os
-
-# sys.path.append('../telemanom')
 
 
 class Config:

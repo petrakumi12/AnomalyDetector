@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Submitted</title>
+    <title>Anomaly Detector</title>
+    <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -15,24 +16,19 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.5.6/dist/progressbar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
-    <link rel="stylesheet" href="static/css/style.css">
     <script src="static/js/allPages.js"></script>
     <script src="static/js/sessionStorageFunctions.js"></script>
-    <script src="static/js/submitJob.js"></script>
+    <script src="static/js/index.js"></script>
 </head>
-<body>
+<body id="body">
 
 <!--Navbar-->
 <nav class="navbar navbar-expand-md  mdb blue sticky-top scrolling-navbar" id="navbar"></nav>
-<div id="progress-div"></div>
 <!--/.Navbar-->
+
 <div class="index-div">
-    <div class="row align-items-center justify-content-center" id="index-title" style="width: 100%">
-        <div class="row justify-content-center w-100" id="submission-text-1"></div>
-        <div class="row justify-content-center w-100" id="submission-text-2"></div>
-    </div>
+    <div class="row align-items-center justify-content-center typed" id="index-title" style="width: 100%;"></div>
     <div class="row no-gutters">
         <div class="index-content btn-group mx-auto">
             <button class="btn btn-info dropdown-toggle mr-3 my-3 btn-lg" type="button" id="dropdownMenuButton"
@@ -40,16 +36,23 @@
                 Start New Anomaly Detection Job
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" onclick="next('raw')">From raw signal</a>
+                <button class="dropdown-item" onclick="startNewAnomalyDetectionJob('raw')">
+                    From raw signal
+                </button>
                 <div class="dropdown-divider"></div>
-                <h2 class="dropdown-header" style="font-size: 1em; color: #2e2c2e;">From LSTM-smoothed signal</h2>
-                <a class="dropdown-item" onclick="next('LSTM-new')">New LSTM model</a>
-                <a class="dropdown-item" onclick="next('LSTM-prev')">Previously trained LSTM model</a>
+                <button class="dropdown-item" onclick="startNewAnomalyDetectionJob('LSTM-new')">
+                    New LSTM model
+                </button>
+                <button class="dropdown-item" onclick="startNewAnomalyDetectionJob('LSTM-prev')">
+                    Previously trained LSTM model
+                </button>
             </div>
-            <a href="/results" class="btn btn-info mx-3 my-3 btn-lg rounded" role="button" aria-pressed="true">View
-                Previous Jobs</a>
+            <a href="/results" class="btn btn-info mx-3 my-3 btn-lg rounded" role="button" aria-pressed="true">
+                View Previous Jobs
+            </a>
         </div>
     </div>
 </div>
+
 </body>
 </html>

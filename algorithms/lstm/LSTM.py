@@ -2,25 +2,19 @@ import os
 import shutil
 import sys
 import traceback
-
-import boto3
+import keras
 import yaml
-
 import helpers.plotter as plotter
 
 import numpy as np
 import pydot
 
-import algorithms.lstm.errors as err
-import algorithms.lstm.modeling as models
+from algorithms.lstm.ErrorProcessing import ErrorProcessing
+from algorithms.lstm.LSTMModel import LSTMModel
 from algorithms.MLAlgorithm import MLAlgorithm
-from algorithms.ProgressLogger import ProgressLogger
-from algorithms.lstm import custom_helpers
-import algorithms.lstm.helpers as helpers
-import keras
-from helpers.db_interactions import prep_npy_arr_for_db, remove_channel_period
+from algorithms.lstm.DataPrepper import DataPrepper
 from algorithms.lstm.Config import Config
-
+from helpers.DbInteractions import DbInteractions
 
 keras.utils.vis_utils.pydot = pydot
 
@@ -41,29 +35,37 @@ class LSTM(MLAlgorithm):
             self.save_results()
 
     def setup_lstm_environment(self):
+        """
+        Makes sure all datasets are formatted, normalized, and saved, config file is updated, variables are put in the right form.
+        :return:
+        """
         print('using lstm smoothed signal')
         # ProgressLogger().log('Using LSTM-smoothed signal: ', (self.cur_job.job_id))
         # adding params that will be needed in the config file for both training and testing lstms
-        self.cur_job.args = custom_helpers.add_extra_lstm_params(self.cur_job.args)
-        custom_helpers.prepare_testing_sets(self.cur_job.args, self.cur_job.resources_folder)  # prep testing sets
+        self.cur_job.args = DataPrepper().add_extra_lstm_params(self.cur_job.args)
+        DataPrepper().prepare_testing_sets(self.cur_job.args, self.cur_job.resources_folder)  # prep testing sets
 
         if self.cur_job.args['signal_type'] == 'LSTM-new':  # adding params that are needed if training new model
             print('will train new lstm model')
             # ProgressLogger().log('Will train new LSTM model:', (self.cur_job.job_id))
-            custom_helpers.prepare_training_sets(self.cur_job.args, self.cur_job.resources_folder)
+            DataPrepper().prepare_training_sets(self.cur_job.args, self.cur_job.resources_folder)
 
         if self.cur_job.args['signal_type'] == 'LSTM-prev':  # adding params that are needed if using previously trained model
             # ProgressLogger().log('Will use previously trained LSTM model:', (self.cur_job.job_id))
             print('will use previously trained lstm model')
-            self.cur_job.args = custom_helpers.add_testing_lstm_params(self.cur_job.args)
+            self.cur_job.args = DataPrepper().add_testing_lstm_params(self.cur_job.args)
 
         # third, make sure the parameters are the right type and dump them to the config file
-        self.cur_job.args = custom_helpers.convert_args_to_numeric(self.cur_job.args)
+        self.cur_job.args = DataPrepper().convert_args_to_numeric(self.cur_job.args)
         with open("_config_files/config_new.yaml", "w") as file:
             yaml.dump(self.cur_job.args['params']['alg_params'], file)
         file.close()
 
     def run(self):
+        """
+        Runs LSTM: checks if training, testing, or both and calls appropriate functions to generate or load model accordingly for each channel
+        :return:
+        """
         self.config = Config("_config_files/config_new.yaml") # reload config in case we have updated any of its values
 
         try:
@@ -75,12 +77,12 @@ class LSTM(MLAlgorithm):
             # train here first
             # ===============================================
             if self.config.train:
-                self.X_train, self.y_train = helpers.load_train_data(self.path_train)
-                model = models.generate_train_model(self.X_train, self.y_train)
+                self.X_train, self.y_train = DataPrepper().load_train_data(self.path_train)
+                model = LSTMModel().generate_train_model(self.X_train, self.y_train)
                 # save trained model to aws s3 bucket for each
-                models.upload_h5(model, self)
+                LSTMModel().upload_h5(model, self)
             else:
-                model = models.load_train_model(self)
+                model = LSTMModel().load_train_model(self)
 
             # then predict here using generated model
             # ===============================================
@@ -94,14 +96,14 @@ class LSTM(MLAlgorithm):
                     # ProgressLogger().log("predicting %s (%s of %s)" % (chan, i + 1, len(channel_names)))
                     print("predicting %s (%s of %s)" % (chan, i + 1, len(channel_names)))
 
-                    self.X_test, self.y_test = helpers.load_test_data(chan, self.path_test)
+                    self.X_test, self.y_test = DataPrepper().load_test_data(chan, self.path_test)
                     print('y test shape', np.shape(self.y_test))
-                    y_hat = models.predict_in_batches(self.y_test, self.X_test, model, chan, self.cur_job.job_id)
+                    y_hat = LSTMModel().predict_in_batches(self.y_test, self.X_test, model, chan, self.cur_job.job_id)
                     self.y_hats[chan] = y_hat
 
                     # Error calculations
                     # ====================================================================================================
-                    e = err.get_errors(self.y_test, y_hat, chan, smoothed=False)
+                    e = ErrorProcessing().get_errors(self.y_test, y_hat, smoothed=False)
 
                     normalized_error = np.mean(e) / np.ptp(self.y_test)
                     # ProgressLogger().log("normalized prediction error: %s" % normalized_error)
@@ -121,10 +123,15 @@ class LSTM(MLAlgorithm):
         # self.cur_job.signal_arrays = self.y_hats
 
     def save_results(self):
-        print('yhats ', self.y_hats.items())
+        """
+        Saves results of LSTM testing (predicting) to database
+        :return:
+        """
         for chan, y_hat in self.y_hats.items():
-            chan = remove_channel_period(chan)
+            chan = DbInteractions().remove_channel_period(chan)
             if not chan in self.cur_job.results.keys():
                 self.cur_job.results[chan] = {}
-            self.cur_job.results[chan]['smoothed_signal'] = prep_npy_arr_for_db(y_hat)
-            print('results after lstm',self.cur_job.results)
+            self.cur_job.results[chan]['smoothed_signal'] = DbInteractions().prep_npy_arr_for_db(y_hat)
+
+
+
