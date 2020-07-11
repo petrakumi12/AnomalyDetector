@@ -5,7 +5,7 @@ from helpers import normalizer
 from helpers.normalizer import normalize_arr
 
 
-class DataPrepper():
+class DataPrepper:
     """
     Class that handles preparing and processing data for running with LSTMs
     """

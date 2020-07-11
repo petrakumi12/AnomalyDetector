@@ -5,7 +5,7 @@ import more_itertools as mit
 from algorithms.lstm.Config import Config
 
 
-class ErrorProcessing():
+class ErrorProcessing:
     """
     Class that handles finding errors between real and predicted values and processing the,
     """

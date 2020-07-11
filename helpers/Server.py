@@ -2,7 +2,7 @@ from pytz import timezone
 from datetime import datetime as dt
 from helpers.DbInteractions import DbInteractions
 import numpy as np
-import api.api_helpers as api_helpers
+import helpers.api_helpers as api_helpers
 from algorithms.ProgressLogger import ProgressLogger
 
 class Server():
