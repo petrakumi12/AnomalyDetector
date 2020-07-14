@@ -1,6 +1,10 @@
 # AnomalyDetector
 
-A website and API tool for exploring anomlies in fNIRS data using both machine learning and statistical methods.
+A website and API tool for exploring anomalies in fNIRS data using both machine learning and statistical methods.
+
+This README is an extensive guide on the features, code structure, and usage of the AnomalyDetector tool. Some sections
+are meant for first time users or people that do not have coding experience (Sections 1, 2, 5, 7), while others are meant for
+experienced developers or the curious who would like to understand how everything works under the hood. 
 
 ## Table of contents
 1. [ Features of the tool. ](#features)
@@ -8,8 +12,8 @@ A website and API tool for exploring anomlies in fNIRS data using both machine l
 3. [ Code Structure. ](#codeStructure)
 4. [ Structure of Postgres, MongoDb, and AWS Collections](#dbStructures)
 5. [ Installing and running code from your device ](#installation)
-6. [ Navigating the Website as a User ](#ui)
-7. [ API functionality ](#api)
+6. [ API functionality ](#api)
+7. [ Navigating the Website as a User ](#ui)
 8. [ Known Bugs ](#bugs)
 9. [ Future Development ](#future)
 
@@ -252,13 +256,8 @@ Copy the IP address that shows on your Run console. Then:
 **API**: Using an app like postman, paste the address on the header of a new request to prepare for sending or 
 receiving requests in the future. 
 
-<a name="ui"></a>
-## 6. Navigating the Website as a User
-
-
-
 <a name="api"></a>
-## 7. API functionality
+## 6. API functionality
 
 ### Submitting a job
 
@@ -266,39 +265,39 @@ Let's demonstrate the API’s functionality by submitting a sample job running V
 Threshold on an LSTM-smoothed signal from a newly trained model. To do so we follow these steps:
 
 1. Submit a request containing the information below to
-the `/submitRequest` URL endpoint. 
-![Submit job api](_user_guide/imgs/submit%20api.png)
+    the `/submitRequest` URL endpoint. 
+    ![Submit job api](_user_guide/imgs/submit%20api.png)
 
-Once the request is submitted, we receive the following result:
-![Success job api](_user_guide/imgs/api%20success.png)
+    Once the request is submitted, we receive the following result:
+    ![Success job api](_user_guide/imgs/api%20success.png)
 
 2. To understand how the job is being processed we can see the logs
-outputted in the backend. First, we see the parameters below
-will be used. Since we only added the B parameter, all others were set
-as default.
-![Parameters api](_user_guide/imgs/api%20parameters.png)
+    outputted in the backend. First, we see the parameters below
+    will be used. Since we only added the `B` parameter, all others were set
+    as default.
+    ![Parameters api](_user_guide/imgs/api%20parameters.png)
 
 3. Then, we see a progress update followed by starting the LSTM.
-![Starting job api](_user_guide/imgs/starting%20lstm%20api.png)
+    ![Starting job api](_user_guide/imgs/starting%20lstm%20api.png)
 
 4. Afterwards, the model gets trained. After it is done training, it updates
-progress and predicts outputs for the user-defined channels. We can see
-this in the logs like below.
-![LSTM ended api](_user_guide/imgs/lstm%20ended%20api.png)
+    progress and predicts outputs for the user-defined channels. We can see
+    this in the logs like below.
+    ![LSTM ended api](_user_guide/imgs/lstm%20ended%20api.png)
 
-5. Once predictions have been made, the smoothed arrays are sent to the
-Variation with standard deviation method and anomalies are calculated
-separately for each channel.
-![Calculate anomalies API](_user_guide/imgs/lstm%20ended%20api.png)
+5. Once predictions have been made, the smoothed arrays are sent to the Object that handles the 
+    `Variation with standard deviation method` algorithm and anomalies are calculated
+    separately for each channel.
+    ![Calculate anomalies API](_user_guide/imgs/lstm%20ended%20api.png)
 
 6. Once this step is also completed, the job is finished. We can see
-this through the following output as well.
-![Job complete API](_user_guide/imgs/job%20complete%20api.png)
+    this through the following output as well.
+    ![Job complete API](_user_guide/imgs/job%20complete%20api.png)
 
-### Retreiving information about a job
+### Retrieving information about a job
 
 In the meanwhile, the job has been saved to the database and we can
-retrieve its information through the API through a POST request to
+retrieve its information through the API through a `POST` request to
 `/jobDetails`. 
 
 Body of the request
@@ -307,16 +306,221 @@ Body of the request
 The returned response
 ![Job complete API](_user_guide/imgs/get%20job%20info%20request%20response.png)
 
+<a name="ui"></a>
+## 7. Navigating the Website as a User
+
+The website is built on top of the API code to add extra functionality
+and a user interface to make the site as easy as possible to use. The site was
+developed using HTML, CSS, and plain Javascript with JQuery, with the help of
+libraries like Bootstrap and Plotly. The site can complete the same functions
+as the API, with the addition of the possibility to visually see all details of
+all previously submitted jobs. 
+
+### Submitting an anomaly detection job using the website
+
+We will submit a new sample anomaly detection job using signal values smoothed with LSTMs and view it visually once it has
+completed. 
+1. From the homepage, click on **Start New Anomaly Detection Job**
+2. On the dropdown menu, click **New LSTM Model** as shown below. Doing so will take you to the next page.
+    
+    ![Homepage](_user_guide/imgs/web_2.png)
+    Homepage of Anomaly Detector site with clicked dropdown button
+    indicating the button that will initiate an anomaly detection job on signal
+    smoothed with a new LSTM model
+
+3. The following page shown below allows users to pick the anomaly detection algorithm. 
+    In this page, the **Next** button is deactivated until the user
+    selects at least a **method** and a **job name**. A **description** can also be
+    added to allow the user more space to give additional details about
+    the job, but it is not necessary. The **job name** can be anything the
+    user likes. Clicking the **checkbox** to use current time as job name automatically names the job after the current date and time. For this
+    demonstration we will name the job ”demo for paper” and pick 
+    **Telemanom** as the anomaly detection algorithm because it is the only one
+    whose functionality requires the use of LSTMs.
+
+    By selecting this algorithm the currently picked method
+    changes from **None** to **Variation with Standard Deviation-based Threshold**, 
+    and a short paragraph containing some information about the method appears. This is done to make it easier for users to understand
+    what algorithm they have chosen. If users switch between different algorithms, both these fields change accordingly.
+    
+    After selecting the wanted algorihtm we click **Next**.
+
+   ![Select algorithm](_user_guide/imgs/web_3.png)
+    Page where users can input a job name and select an anomaly
+    detection algorithm
+
+4. The next page takes the user to a page devoted towards inputting datasets and algorithm parameters, shown below. 
+    The content of this page changes based on the picked method and whether or not the signal will be LSTM-smoothed.
+    We can start by inputting **training** and **testing sets**. The user can either upload new sets or pick previously uploaded 
+    ones from the selection box. 
+
+    ![Input Parameters](_user_guide/imgs/web_4.png)
+    Page where users can select LSTM and anomaly detection parameters, as well as sets used to train the LSTM model and predict anomalies.
+
+    There are no limits to the number of sets the user can choose, as long as all the arrays combined are less than **5MB** in size. 
+    Picking one option disables the other. In this case we can pick two previously uploaded sets to train on, `1.csv` and `2.csv`, 
+    and two others to predict on, `3.csv` and `4.csv`. 
+    
+    When the training sets are selected, the boxes asking
+    for **start and end data points** get automatically filled with 0 and the summed length of the selected training arrays. 
+    The user can lengthen or shorten this input as desired within the given range of numbers.
+    
+    All the parameter fields get automatically populated by the default
+    values stored in the `config.yaml` file. If the user wants to change any of them, 
+    they can do so and they can restore the default value of the parameter by clicking on its name. For this demo,
+    we will keep default parameters.
+    
+    After selecting datasets and parameters, user presses **Next** and moves to the next page. 
+
+5. When the **Next** button is pressed, the information is sent to the server
+    and the job gets initialized. The user sees the success page below. 
+    The backend process at this point is almost identical to that shown on the API section.
+    
+    ![Input Parameters](_user_guide/imgs/web_5.png)
+    Page showing successful submission of the anomaly detection job
+
+
+### Viewing previously submitted anomaly detection jobs
+
+Clicking on **View Previous Jobs** either on the homepage, navbar, or the submission page, sends the user to a page where they
+can see all previously submitted jobs and their details. 
+In this page they can search and filter jobs, as well as click on them to see more details.
+
+![Input Parameters](_user_guide/imgs/web_6.png)
+Page showing all previously submitted jobs
+
+Clicking on the job we just submitted shows us all details related to
+the job and gives us the option to either delete the job or visualize its results.
+
+![Input Parameters](_user_guide/imgs/web_7.png)
+Details of submitted job displayed once user clicks on job entry
+on the table
+
+### Visualizing results of an anomaly detection job
+
+Clicking on **Visualize Results** takes us to a new page where all arrays or curves corresponding to this submission are 
+visualized. The initial layout of the page looks like below:
+
+![Input Parameters](_user_guide/imgs/web_8.png)
+Visualization of anomaly detection results
+
+Differently colored graphs represent different types of curves (blue -
+real signal curve, red - LSTM-predicted signal curve, orange - variation
+curve, grey highlights - anomalies). 
+These colors remain the same regardless of how many channels are being displayed. 
+
+If the user wants to only analyze a single channel we can use the toggle buttons on the top of the page to toggle on 
+just those curves. We can also toggle individual curves by clicking on the legend entries. This is helpful if we want to
+analyze and compare how two specific curves affect each other. This graph is generated with Plotly and as such it offers 
+by default options to drag and zoom, pan, show or compare data points on hover, and more. Finally, clicking on the 
+button at the top of the page shows a dropdown of the job information similar to the one on the previous page.
+
 
 <a name="bugs"></a>
 ## 8. Known Bugs
+
+1. **Uploadig datasets in the UI:** 
+When user wants to upload a dataset for testing from their local directory, in some cases that dataset is added as a 
+training set instead of a testing one.
+
+2. **Buttons to plot results or delete job:** 
+On the page where user can view all previously submitted jobs, if they click on an incomplete job the buttons to delete 
+or view the results of the job are not disabled. 
+However, if they are clicked they lead to issues on the backend (delete), or an incomplete page (view results).
+
+3. **Event array handling on MongoDb uploads:** 
+On the parameter selection page, the user is allowed to upload .csv files with either one or two columns (signal values + events).
+However, when the dataset is being uploaded to MongoDb the events column is not handled, and only the signal values are uploaded. 
+This means that if a user then decides to select the same dataset from the multiselect menu of previously uploaded datasets, 
+the second column of the received array will not be the same. 
 
 
 <a name="future"></a>
 ## 9. Future Development
 
+Like any project, on this one as well there are many improvements that can be made, from more anomaly detectors to better code and to more features. 
+Here are some of them:
+
+### Anomaly Detecting Methods
+
+1. **Recalculating variation:**
+During testing of the new anomaly detector methods we noticed that
+detected anomalies were shifted by at least B points from the real anomalies.
+This is because every *i*th point of the variation array corresponds to points *i* through *i+B* or the real signal array.
+To resolve this issue see Chapter 5.1.1 on [the paper for this project.](https://drive.google.com/file/d/15DNh4O4GolQIT6FgowC0aPXs22uu56Cw/view?usp=sharing)
+
+2. **New anomaly detection method:** 
+A popular way to find outliers in a curve is by calculating the mean of
+the curve and picking values in it such that their removal causes the greatest
+change in the curve. We can adapt this concept to variation: we can split the variation array into smaller sections,
+and calcuate a threshold such that removing all variation values above it
+causes the greatest change in the mean of the section. 
+
+This method might have potential given the fact that anomalies in the real signal cause very
+large and concentrated spikes in variation.
+
+### Website and API
+
+1. **Adding real anomalies:** 
+So far once an anomaly detection job is complete the user is able to
+visualize its results, but they cannot visualize its real anomalies even if they
+have the data for it. It would be good to give users the option to upload a file
+with the real anomalies so they can visualize them alongside the predicted
+ones.
+
+This option could be added in the page where users visualize their results.
+This page gets generated by `visualizeJobResults.html` and `visualizeJobResults.js`.
+We can add an upload box in the html file and on the javascript file we can
+add its functionality. Once the user uploads a file we can extract the data
+from it and add it to the plot. The plot is a global object in this .js file, and
+we can add the new data to it by following the plotly documentation.
+
+2. **Comparing between algorithms:**
+
+Users of the website could greatly benefit from the ability to compare
+between the results of different job submissions as it would allow them to
+view the differences in results and help them understand which methods
+work best for a given dataset.
+
+To allow for comparing between job results we must first allow the user
+to choose between which jobs to compare. This could happen on the View Jobs page (`results.html`): when the table 
+containing all the jobs is loaded it could contain a column named Compare with a checkbox on each row. Once the user
+clicks on the jobs they want to compare they can click a button that will
+take them to a new page containing the information for all selected jobs.
+
+The code for adding the checkboxes should be added to the results.html and
+`results.js` files. In `results.html`, another column should be added to the table,
+while in results.js code to update the table rows should be added to the
+`updateProjectTable()` function.
+
+Once the Compare command is called we need a way to change to a new
+page and get the information about the selected jobs. In the results page we
+already have all the data for all the jobs in the database. We can use the
+sessionStorage variable to pass the job data from results.html to the new page
+where comparison results will be visualized. This gives us all the information
+we need to compare all results both visually and numerically.
+
+3. **User Interface for adding anomaly detection algorithms:**
+
+To make the process of adding anomaly detection algorithms easier we
+can add another section in the website where users can upload their own
+anomaly detection algorithms. The users should be able to submit a .py file
+with the following:
+ - anomaly detector code: at minimum defining an Object for it that when initialized checks if conditions are satisfied for the algorithm to run and if so runs it
+ - .yaml file containing: 
+  - display name for the algorithm, 
+  - whether it works on real signal values, their LSTM predictions, or both, 
+  - the default algorithm parameters:
+  
+    
+For the algorithm to work with the current code it requires a screen name, a variable name, and the actual default
+value. The variable name and its value should be added to the `config.yaml` file located in the `_config_files` folder. 
+The .py file should be put in its own folder added under the algorithms folder. Then, the algorithm type and the display 
+names should be added to the `default_algorithm_parameters` variable in the `AnomalyDetector` object. 
+Finally, the `run_job()` method in the Job object needs to be updated with a call to initialize the object of the new 
+algorithm defined in the uploaded .py file.
+
+
 <a name="paramTable"></a>
 ![Table of all algorithm parameters](_user_guide/imgs/algorithm%20parameters.png)
 
-\\events functionality on datasets was never checked, updating that would be nice too. 
-Handling events on the client side should be pretty much set but on the server side with uploading and receiving from database is not. 
