@@ -21,10 +21,8 @@ class LSTMModel:
     """
 
     def generate_train_model(self, X_train, y_train):
-        print('generating train model')
-        print('train shape', X_train.shape)
+        print('%s : Training LSTM model' % self.config.job_id)
         config = Config("_config_files/config_new.yaml")
-        print('layers shape', config.layers)
 
         cbs = [History(), EarlyStopping(monitor='val_loss', patience=config.patience,
                                         min_delta=config.min_delta, verbose=0)]
@@ -61,11 +59,13 @@ class LSTMModel:
         plt.legend(['train', 'val'], loc='upper left')
         plt.show()
 
+        print('%s : LSTM model generated' % self.config.job_id)
+        print('---------------------------------')
         return model
 
     def load_train_model(self, lstm):
         """
-        Loads previously traned LSTM model
+        Loads previously trianed LSTM model
         :param lstm: the LSTM class object
         :return: loaded model
         """
@@ -73,7 +73,8 @@ class LSTMModel:
         return load_model(os.path.join("temp_logs", lstm.config.job_id, "models", lstm.config.use_id + ".h5"))
 
     def get_model(self, anom, X_train, y_train, logger, train=False):
-        """Train LSTM model according to specifications in config_new.yaml or load pre-trained model.
+        """
+        Train LSTM model according to specifications in config_new.yaml or load pre-trained model.
 
         :param anom (dict): contains all anomaly information for a given input stream
         :param X_train (np array): numpy array of training inputs with dimensions [timesteps, l_s, input dimensions)

@@ -3,9 +3,7 @@ import os
 import boto3
 
 from algorithms.Algorithm import Algorithm
-from algorithms.ProgressLogger import ProgressLogger
 from algorithms.lstm.Config import Config
-from algorithms.lstm.DataPrepper import DataPrepper
 from helpers.DbInteractions import DbInteractions
 import numpy as np
 
@@ -41,7 +39,7 @@ class MLAlgorithm(Algorithm):
         self.cur_job.update_progress(3)
 
         # self.log('---------------------------------', ())
-        ProgressLogger().log(('Starting LSTM: %s', (self.cur_job.job_id)))
+        print('%s : Starting LSTM' % (self.cur_job.job_id))
 
     def make_dirs(self):
         """
@@ -61,7 +59,11 @@ class MLAlgorithm(Algorithm):
             ytrain_dict[item['name']] = item['sig_vals']
         return ytrain_dict
 
-    def get_ytests(self, train):
+    def get_ytests(self):
+        """
+        Gets the signal values that algorithm will test on
+        :return: dictionary where key is channel name and value is signal values
+        """
         ytest_dict = {}
         # if train:
         #     for item in self.cur_job.args['params']['sets']['test']:
@@ -74,10 +76,13 @@ class MLAlgorithm(Algorithm):
         return ytest_dict
 
     def get_yhats(self):
+        """
+        Gets the signal values that LSTM predicted
+        :return: dictionary where key is channel name and value is LSTM-smoothed signal values
+        """
         yhat_dict = {}
         results = self.cur_job.results
         for chan in self.cur_job.results.keys():
             y_hat = results[chan]['smoothed_signal']
             yhat_dict[DbInteractions().add_channel_period(chan)] = DbInteractions().db_arr_to_npy(y_hat)
-        print('get yhats:', yhat_dict)
         return yhat_dict

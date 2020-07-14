@@ -2,7 +2,6 @@ import threading
 import boto3
 import yaml
 from Job import Job
-from algorithms.ProgressLogger import ProgressLogger
 
 class AnomalyDetector:
     """
@@ -148,6 +147,7 @@ class AnomalyDetector:
         }  # to be populated with all default params from all algorithms
         self.load_default_algorithm_params()
 
+
     def load_default_algorithm_params(self):
         """
         Sets all default parameters of the algorithms as variables in the
@@ -174,12 +174,10 @@ class AnomalyDetector:
         while True:
             if len(self.jobs_queue) != 0:
                 if not self.is_running:
-                    print('anomalydetector not running')
                     self.lock.acquire()
                     job = self.jobs_queue.pop(0)
-                    print('popped from queue')
+                    print('AnomalyDetector Started')
                     self.lock.release()
-                    print('starting anomaly detection job', job)
                     self.dequeue_job(job)
 
     def queue_job(self, args, lock):
@@ -190,7 +188,7 @@ class AnomalyDetector:
         at the same time by two different processes
         :return: the id of the queued job
         """
-        ProgressLogger().log("Queued: %s" % (args['_id']))
+        print("Queued: %s" % (args['_id']))
         job = Job(args)
         job.update_progress(2)  # update progress of job in db to job queued
         lock.acquire()  # block all other processes from changing the queue
@@ -204,10 +202,8 @@ class AnomalyDetector:
         - initializing logger
         - initializing and running thread which initializes processing of the job
         """
-        print('dequeued job')
+        print("Dequeued: %s" % job.job_id)
         self.is_running = True  # change anomaly detector state to running
-        ProgressLogger().log("Dequeued: %s " % (job.job_id))
-        ProgressLogger().logger.handlers = []
         t = threading.Thread(target=job.run, args=(self,))
         t.start()
         t.join()

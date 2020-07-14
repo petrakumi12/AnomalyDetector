@@ -57,14 +57,12 @@ class DataPrepper:
         """
 
         config = Config("_config_files/config_new.yaml")
-        print('arr shape before', np.shape(arr))
 
         data = []
 
         for i in range(len(arr) - config.l_s - config.n_predictions):
             data.append(arr[i:i + config.l_s + config.n_predictions])
         data = np.array(data)
-        print('shape arr after', np.shape(data))
 
         assert len(data.shape) == 3
 
@@ -113,7 +111,6 @@ class DataPrepper:
         :return:
         """
         # making None elements into 0s
-        print('args are', args)
         for a_type in ['train', 'test']:
             for index, data_dict in enumerate(args['params']['sets'][a_type]):
                 if data_dict is not None:

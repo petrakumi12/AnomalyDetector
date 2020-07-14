@@ -2,7 +2,6 @@ import os
 import shutil
 from pathlib import Path
 
-from algorithms.ProgressLogger import ProgressLogger
 from algorithms.Raw import Raw
 from algorithms.lstm.DataPrepper import DataPrepper
 from algorithms.lstm.LSTM import LSTM
@@ -63,14 +62,14 @@ class Job:
             {'_id': self.job_id},
             {'$set': {'progress': self.progress[number]}}
         )
-        ProgressLogger().log((self.progress[number] + ": %s ", self.job_id))
+        print(self.job_id + " : " + str(self.progress[number]))
 
     def prep(self):
         """
         Prepares datasets for the specific jobs
         :return: the updated job details
         """
-        print('prepping job')
+        print("%s : Prepping job" % self.job_id)
 
 
         # make resources folder for temporary storage of datasets
@@ -92,10 +91,9 @@ class Job:
         Runs the anomaly detection job and saves results
         :return:
         """
-        print('run job called')
         # self.log('--------------------------------',())
-        ProgressLogger().log(('Starting %s', (self.args['job_type'])))
-        # self.log('--------------------------------',())
+        print("%s: Algorithm type %s on signal type %s" % (self.job_id, self.args['job_type'], self.args['signal_type']))
+        print('--------------------------------')
         # try:
         self.prep()
         LSTM(self)
@@ -110,23 +108,20 @@ class Job:
         #     print('failed')
         #     job.success = False
         self.end()
-        print('running false')
+        print('AnomalyDetector stopped running')
         anomalydetector.is_running = False
 
     def end(self):
-        print('ending job')
         if self.success:
-            print('successful')
+            print('%s : Job Successful' % self.job_id)
             self.update_progress(9)  # final update to job completed
         else:
-            ProgressLogger().log('Job interrupted so early stopping activated')
-        # close logger handlers
-        handlers = ProgressLogger().logger.handlers[:]
-        for handler in handlers:
-            handler.close()
-            ProgressLogger().logger.removeHandler(handler)
+            print('%s : Job interrupted so early stopping activated' % self.job_id)
 
-        # everything is done, closing connection and deleting temp folders
+        print('%s : Ending Job' % self.job_id)
+        print('--------------------------------')
+
+        # everything is done, deleting temp folders
         if os.path.exists(os.path.join(os.getcwd(), 'resources')):
             shutil.rmtree(os.path.join(os.getcwd(), 'resources'))
 

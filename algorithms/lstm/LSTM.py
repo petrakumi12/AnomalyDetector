@@ -26,7 +26,6 @@ class LSTM(MLAlgorithm):
 
     def __init__(self, job):
         super().__init__(job)
-        print("Calling LSTM")
 
         # if using lstm smoothing
         if 'LSTM' in self.cur_job.args['signal_type']:
@@ -39,20 +38,17 @@ class LSTM(MLAlgorithm):
         Makes sure all datasets are formatted, normalized, and saved, config file is updated, variables are put in the right form.
         :return:
         """
-        print('using lstm smoothed signal')
-        # ProgressLogger().log('Using LSTM-smoothed signal: ', (self.cur_job.job_id))
+        print('%s : Using LSTM-smoothed signal' % self.cur_job.job_id)
         # adding params that will be needed in the config file for both training and testing lstms
         self.cur_job.args = DataPrepper().add_extra_lstm_params(self.cur_job.args)
         DataPrepper().prepare_testing_sets(self.cur_job.args, self.cur_job.resources_folder)  # prep testing sets
 
         if self.cur_job.args['signal_type'] == 'LSTM-new':  # adding params that are needed if training new model
-            print('will train new lstm model')
-            # ProgressLogger().log('Will train new LSTM model:', (self.cur_job.job_id))
+            print('%s : Will train new LSTM model' % self.cur_job.job_id)
             DataPrepper().prepare_training_sets(self.cur_job.args, self.cur_job.resources_folder)
 
         if self.cur_job.args['signal_type'] == 'LSTM-prev':  # adding params that are needed if using previously trained model
-            # ProgressLogger().log('Will use previously trained LSTM model:', (self.cur_job.job_id))
-            print('will use previously trained lstm model')
+            print('%s : Will use previously trained LSTM model' % self.cur_job.job_id)
             self.cur_job.args = DataPrepper().add_testing_lstm_params(self.cur_job.args)
 
         # third, make sure the parameters are the right type and dump them to the config file
@@ -89,30 +85,25 @@ class LSTM(MLAlgorithm):
             self.cur_job.update_progress(6)  # update progress to predicting shape with lstm
 
             channel_names = [x[:-4] for x in os.listdir(self.path_test) if x[-4:] == '.npy']
-            print("chans being predicted: %s" % channel_names)
+            print("%s : Channels being predicted: %s" % (self.cur_job.job_id,channel_names))
 
             for i, chan in enumerate(channel_names):
                 if i >= 0:
-                    # ProgressLogger().log("predicting %s (%s of %s)" % (chan, i + 1, len(channel_names)))
-                    print("predicting %s (%s of %s)" % (chan, i + 1, len(channel_names)))
+                    print("%s : Predicting %s (%s of %s)" % (self.cur_job.job_id, chan, i + 1, len(channel_names)))
 
                     self.X_test, self.y_test = DataPrepper().load_test_data(chan, self.path_test)
-                    print('y test shape', np.shape(self.y_test))
                     y_hat = LSTMModel().predict_in_batches(self.y_test, self.X_test, model, chan, self.cur_job.job_id)
                     self.y_hats[chan] = y_hat
 
                     # Error calculations
                     # ====================================================================================================
-                    e = ErrorProcessing().get_errors(self.y_test, y_hat, smoothed=False)
-
-                    normalized_error = np.mean(e) / np.ptp(self.y_test)
-                    # ProgressLogger().log("normalized prediction error: %s" % normalized_error)
+                    # e = ErrorProcessing().get_errors(self.y_test, y_hat, smoothed=False)
+                    # normalized_error = np.mean(e) / np.ptp(self.y_test)
 
                     plotter.plot_real_pred_signal(self.y_test, y_hat, chan, self.path_train)
 
-            # ProgressLogger().log("all predictions complete")
-            # ProgressLogger().log("---------------------------------")
-            # return self.y_hats
+            print("%s : LSTM smoothing complete" % self.cur_job.job_id)
+            print("---------------------------------")
 
         except Exception as e:
             print(e)

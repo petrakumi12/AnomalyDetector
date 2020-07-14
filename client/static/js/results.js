@@ -314,7 +314,7 @@ function populateModal(submission) {
     let deleteButton = document.createElement('button');
     deleteButton.innerText = "Delete Submission";
     deleteButton.onclick = function () {
-        fetch('/delete_entry', {
+        fetch('/deleteEntry', {
             method: 'POST',
             headers: {'Content-type': 'application-json'},
             body: JSON.stringify({'id': submission._id})

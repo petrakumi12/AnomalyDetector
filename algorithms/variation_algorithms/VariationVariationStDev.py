@@ -1,7 +1,6 @@
 import numpy as np
 
 from algorithms.variation_algorithms.Variation import Variation
-from algorithms.ProgressLogger import ProgressLogger
 from helpers.normalizer import normalize_arr
 
 
@@ -20,10 +19,10 @@ class VariationVariationStDev(Variation):
         B_2 = self.cur_job.args['params']['alg_params']['B_2']
         threshold = self.cur_job.args['params']['alg_params']['threshold']
         chans = self.cur_job.get_test_channels()
-        print("chans being analyzed: %s" % chans)
+        print("Channels being analyzed: %s" % chans)
         i = 0
         for chan, series in self.cur_job.get_ytests().items():
-            ProgressLogger().log("analyzing %s (%s of %s)" % (chan, i, len(chans)))
+            print("%s: Analyzing %s (%s of %s)" % (self.cur_job.job_id, chan, i+1, len(chans)))
 
             var = [element[0] for element in normalize_arr(np.array(self.variation(series, B)).reshape(-1, 1))]
             var_var = [element[0] for element in normalize_arr(np.array(self.variation(var, B_2)).reshape(-1, 1))]
@@ -41,6 +40,6 @@ class VariationVariationStDev(Variation):
                 'num_anoms': predicted_anomalies.count(1)
             }
 
-        ProgressLogger().log(("variation method complete"))
-        ProgressLogger().log(("--------------------------------"))
+        print("%s : Variation of Variation with Standard Deviation-based Threshold Algorithm Complete" % self.cur_job.job_id)
+        print("--------------------------------")
 

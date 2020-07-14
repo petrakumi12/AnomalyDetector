@@ -3,9 +3,8 @@ from datetime import datetime as dt
 from helpers.DbInteractions import DbInteractions
 import numpy as np
 import helpers.api_helpers as api_helpers
-from algorithms.ProgressLogger import ProgressLogger
 
-class Server():
+class Server:
     """
     Class that handles preparing and processing data for running with LSTMs
     """
@@ -41,7 +40,7 @@ class Server():
         Submits anomaly detection job request to queue
         :return: the queue containing all the jobs
         """
-        ProgressLogger().log("Request Submitted")
+        print("Submitted new anomaly detection job to server")
         anomalydetector.queue_job(args, anomalydetector.lock)
         return anomalydetector.jobs_queue
 
