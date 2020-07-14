@@ -221,38 +221,40 @@ Each dataset in this collection is represented as a dictionary with the followin
 The setup for this project is really easy and only requires a few steps: 
 
 1. Import it from Github on your particular IDE. Some links on how to do that depending on your IDE:
-[PyCharm](https://www.jetbrains.com/pycharm/guide/tips/create-project-from-github/), 
-[Spyder (scroll down to "Working with Version Control")](https://docs.spyder-ide.org/projects.html), 
-[Atom](https://atom.io/packages/import)
+    [PyCharm](https://www.jetbrains.com/pycharm/guide/tips/create-project-from-github/), 
+    [Spyder (scroll down to "Working with Version Control")](https://docs.spyder-ide.org/projects.html), 
+    [Atom](https://atom.io/packages/import)
 
 2. Make sure you are using Python 3.6 on the project. 
 
-Python 3.7 will not support the necessary version of Tensorflow and will cause problems.
-You can install this version of Python [here](https://www.python.org/downloads/release/python-360/). 
-Instructions to include it in the project depending on the IDE:
-[Pycharm](https://www.jetbrains.com/help/pycharm/project-interpreter.html), 
-[Spyder](https://stackoverflow.com/questions/43592879/how-to-change-python-version-in-anaconda-spyder), 
-[Atom (using the Script package - scroll to Usage)](https://atom.io/packages/script#usage)
+    Python 3.7 will not support the necessary version of Tensorflow and will cause problems.
+    You can install this version of Python [here](https://www.python.org/downloads/release/python-360/). 
+    Instructions to include it in the project depending on the IDE:
+    [Pycharm](https://www.jetbrains.com/help/pycharm/project-interpreter.html), 
+    [Spyder](https://stackoverflow.com/questions/43592879/how-to-change-python-version-in-anaconda-spyder), 
+    [Atom (using the Script package - scroll to Usage)](https://atom.io/packages/script#usage)
 
 3. Install `requirements.txt`
-This installs all the packages required to properly run the code. 
-If you have [pip](https://pip.pypa.io/en/stable/) installed, you just need to write `$ pip install -r requirements.txt` 
-on your console and press enter.
+    This installs all the packages required to properly run the code. 
+    If you have [pip](https://pip.pypa.io/en/stable/) installed, you just need to write `$ pip install -r requirements.txt` 
+    on your console and press enter.
 
+4. Add the `_access_keys.py` file to the project directory
+If you don't have this file, reach out to Prof. Solovey 
 
-4. Run app.py
-Once all requirements are installed, all that is left to do is run the `app.py` file. To do so you can follow instructions below:
-Pycharm - click on the file and press the Play button on the top right, 
-[Spyder](https://fangohr.github.io/blog/spyder-the-python-ide.html), 
-[Atom (using the Script package)](https://atom.io/packages/script)
+5. Run app.py
+    Once all requirements are installed, all that is left to do is run the `app.py` file. To do so you can follow instructions below:
+    Pycharm - click on the file and press the Play button on the top right, 
+    [Spyder](https://fangohr.github.io/blog/spyder-the-python-ide.html), 
+    [Atom (using the Script package)](https://atom.io/packages/script)
 
-5. Open the website or run the API
+6. Open the website or run the API
 
-Copy the IP address that shows on your Run console. Then:
-
-**Website**: Paste to your browser, and press enter to see the homepage of the site. 
-**API**: Using an app like postman, paste the address on the header of a new request to prepare for sending or 
-receiving requests in the future. 
+    Copy the IP address that shows on your Run console. Then:
+    
+    **Website**: Paste to your browser, and press enter to see the homepage of the site. 
+    **API**: Using an app like postman, paste the address on the header of a new request to prepare for sending or 
+    receiving requests in the future. 
 
 <a name="api"></a>
 ## 6. API functionality
@@ -417,7 +419,7 @@ button at the top of the page shows a dropdown of the job information similar to
 <a name="bugs"></a>
 ## 8. Known Bugs
 
-1. **Uploadig datasets in the UI:** 
+1. **Uploading datasets in the UI:** 
 When user wants to upload a dataset for testing from their local directory, in some cases that dataset is added as a 
 training set instead of a testing one.
 
