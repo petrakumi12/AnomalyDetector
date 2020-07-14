@@ -94,9 +94,7 @@ helpers that pertain to the API aspect of the tool.
 #### Client
 
 This folder contains all the client-side code of the website consisting of HTML, Javascript, and CSS. Each html file has 
-a corresponding js file under the static folder. The flow of the website is shown on the image below: 
-
-![Website flow](_user_guide/imgs/website flow.png)
+a corresponding js file under the static folder. The flow of the website is shown on the image below: ![Website flow](_user_guide/imgs/website flow.png)
 
 #### User Guide and Config Files
 
