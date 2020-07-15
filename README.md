@@ -306,6 +306,12 @@ Body of the request
 The returned response
 ![Job complete API](_user_guide/imgs/get%20job%20info%20request%20response.png)
 
+### Other API functions
+Users can call from the API any other endpoint that is also used by the website to communicate between user and server.
+The names and functionality of these endpoints is found on the `app.py` file and include 
+`/getJobs`, `/getSavedModels`, `getJobDetails`, `getJobProgress` etc.
+
+
 <a name="ui"></a>
 ## 7. Navigating the Website as a User
 

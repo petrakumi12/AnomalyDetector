@@ -3,7 +3,6 @@ let titleContainer, subtitleContainer, submissionResponse;
 
 
 window.onload = function () {
-    // console.log('type', JSON.parse(sessionStorage.curSubmission));
     addNavBar();
     updateProgressBar(4.0);
     updateGlobals(); //update global variables

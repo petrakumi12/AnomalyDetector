@@ -1,15 +1,11 @@
 import os
-import shutil
 import sys
 import traceback
 import keras
 import yaml
 import helpers.plotter as plotter
-
-import numpy as np
 import pydot
 
-from algorithms.lstm.ErrorProcessing import ErrorProcessing
 from algorithms.lstm.LSTMModel import LSTMModel
 from algorithms.MLAlgorithm import MLAlgorithm
 from algorithms.lstm.DataPrepper import DataPrepper
@@ -95,11 +91,7 @@ class LSTM(MLAlgorithm):
                     y_hat = LSTMModel().predict_in_batches(self.y_test, self.X_test, model, chan, self.cur_job.job_id)
                     self.y_hats[chan] = y_hat
 
-                    # Error calculations
-                    # ====================================================================================================
-                    # e = ErrorProcessing().get_errors(self.y_test, y_hat, smoothed=False)
-                    # normalized_error = np.mean(e) / np.ptp(self.y_test)
-
+                    # plotting
                     plotter.plot_real_pred_signal(self.y_test, y_hat, chan, self.path_train)
 
             print("%s : LSTM smoothing complete" % self.cur_job.job_id)
@@ -111,7 +103,6 @@ class LSTM(MLAlgorithm):
             self.cur_job.update_progress(-1)  # log interruption
 
         keras.backend.clear_session()
-        # self.cur_job.signal_arrays = self.y_hats
 
     def save_results(self):
         """

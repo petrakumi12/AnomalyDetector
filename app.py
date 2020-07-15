@@ -88,7 +88,7 @@ def get_jobs():
 @app.route('/deleteEntry', methods=['POST'])
 def delete_entry():
     """
-    Deletes entry in the job collection of MongoDb
+    Deletes entry in the job collection of MongoDb, given its id
     :return: a success response
     """
     args = request.get_json(force=True)
@@ -120,7 +120,8 @@ def get_uploaded_datasets():
 @app.route('/uploadNewDatasets', methods=['POST'])
 def upload_new_datasets():
     """
-    Uploads new datasets to the uploaded_datasets MongoDb collection
+    Uploads new datasets to the uploaded_datasets MongoDb collection.
+    The dataset is of the form {name: String, sig_vals: Array(Float)}
     :return: a success response
     """
     to_upload = request.get_json(force=True)['to_upload']
@@ -155,7 +156,7 @@ def get_saved_models():
 @app.route('/getJobProgress', methods=['POST'])
 def get_job_status():
     """
-    Gets status of job with id requested by user
+    Gets status of job with id requested by user, given its id
     return: a dictionary with job id, name, and progress
     """
     an_id = request.get_json(force=True)['id']

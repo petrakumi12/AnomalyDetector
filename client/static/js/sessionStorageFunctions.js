@@ -24,7 +24,6 @@ function parseSessionStorage() {
  * @param addOrRemove whether to add value to key or remove the key altogether
  */
 function updateSessionStorage(key, value, addOrRemove) {
-    // console.log('updating sessionstorage for key', key);
     //if add then add value to key in sessionStorage
     if (addOrRemove === 'add') {
         let temporaryStorage = parseSessionStorage();

@@ -107,8 +107,8 @@ class DataPrepper:
     def reformat_datasets(self, args):
         """
         Makes None values in datasets to 0s and normalizes them to between 1 and 0
-        :param args:
-        :return:
+        :param args: job parameters
+        :return: updated job parameters
         """
         # making None elements into 0s
         for a_type in ['train', 'test']:
@@ -124,7 +124,6 @@ class DataPrepper:
                             np.array(data_dict[keys]).reshape(-1, 1))]
         return args
 
-
     def prepare_testing_sets(self, args, resources_folder):
         """
         Prepares testing sets:
@@ -135,10 +134,10 @@ class DataPrepper:
         """
         test_sets = args['params']['sets']['test']
         for channel in test_sets:
-            final_arr = np.vstack([channel['sig_vals'], channel['events']]).T # reshape
-            final_arr[:, 0] = normalizer.normalize_arr(final_arr[:, 0].reshape(-1, 1))[:, 0] # normalize
+            final_arr = np.vstack([channel['sig_vals'], channel['events']]).T  # reshape
+            final_arr[:, 0] = normalizer.normalize_arr(final_arr[:, 0].reshape(-1, 1))[:, 0]  # normalize
             np.save(os.path.join(resources_folder, 'test', str(channel['name']) + '.npy'), final_arr,
-                    allow_pickle=True) # save
+                    allow_pickle=True)  # save
 
     def add_training_lstm_params(self, args, splits):
         """
@@ -172,7 +171,7 @@ class DataPrepper:
         """
         args['params']['alg_params']['predict'] = True  # lstm model will be used to predict
         args['params']['alg_params']['n_predictions'] = 1  # how many outputs the model will generate for one input
-        args['params']['alg_params']['p'] = 0.0 # patience parameter will default to 0 because we are not using it
+        args['params']['alg_params']['p'] = 0.0  # patience parameter will default to 0 because we are not using it
         return args
 
     def prepare_training_sets(self, args, resources_folder):
@@ -184,11 +183,11 @@ class DataPrepper:
         """
         # format training set
         training_set = self.make_training_set(args['params']['sets']['train'],
-                                         args['params']['times']['param_1'],
-                                         args['params']['times']['param_2'])
+                                              args['params']['times']['param_1'],
+                                              args['params']['times']['param_2'])
 
-        training_set[:, 0] = normalizer.normalize_arr(training_set[:, 0].reshape(-1, 1))[:, 0] # normalize
-        np.save(os.path.join(resources_folder, 'train', 'train.npy'), training_set, allow_pickle=True) # save
+        training_set[:, 0] = normalizer.normalize_arr(training_set[:, 0].reshape(-1, 1))[:, 0]  # normalize
+        np.save(os.path.join(resources_folder, 'train', 'train.npy'), training_set, allow_pickle=True)  # save
 
     def add_testing_lstm_params(self, args):
         """
@@ -217,4 +216,3 @@ class DataPrepper:
                     except:
                         pass
         return args
-

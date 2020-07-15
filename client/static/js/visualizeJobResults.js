@@ -3,7 +3,7 @@ let resultsJSON, // json of job results
     colorCategoryDict = {}, //creating dictionary with colors for all lines and anomalies
     allTraces = {}; //dictionary of all traces that go in the plot
 let graphLines = []; //array of graph lines
-let plot; //the plot
+let plot; //the line plot
 
 //array of types of arrays to keep
 let toKeep = ['real_sig_array', 'anom_array'];
@@ -35,7 +35,8 @@ function addPageTitle() {
 }
 
 /**
- *
+ * Retreives real signal arrays, smoothed signal arrays, and prediction arrays from the loaded data,
+ * formatting them if necessary to add to plot
  */
 function getArraysFromData() {
     //job results dictionary
@@ -80,7 +81,6 @@ function getArraysFromData() {
 
 /**
  * Adds colors in dictionary making sure that there is a color for each array
- * todo make sure this is the right description
  */
 function updateColorDictionary() {
     let opacity = 0.8;
@@ -125,7 +125,6 @@ function updateColorDictionary() {
      * Makes gradient scale from first color to second color
      * @param first First color
      * @param second Second color
-     * @returns {*)
      */
     function makeScale(first, second) {
         return d3.scaleLinear().domain([1, 8]).range([first, second])

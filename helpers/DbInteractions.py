@@ -42,7 +42,7 @@ class DbInteractions:
         :param cursor: cursor for pointing at db
         :return: processed_arr: numpy arr with 2 columns, first one time, second value
         """
-        time_val = []
+        time_signal_arr = []
         try:
             # selecting items from db
             select_time_and_val = "SELECT time_ms, value  " \
@@ -79,7 +79,7 @@ class DbInteractions:
 
     def get_channels(self, subject_name, cursor):
         """
-        gets channels corresponding to a subject on the database
+        Gets channels corresponding to a subject on the database
         :param subject_name: name of subject
         :param cursor: cursor to database
         :return: array of channels belonging to subject
@@ -102,10 +102,20 @@ class DbInteractions:
         return channel_arr
 
     def prep_npy_arr_for_db(self, npy_arr):
+        """
+        Makes numpy array to list to be able to add it to mongodb
+        :param npy_arr: array to be converted
+        :return: same array as list object
+        """
         if type(npy_arr) == np.ndarray:
             return list(npy_arr)
 
     def db_arr_to_npy(self, a_list):
+        """
+        Makes array into numpy array if it is a list type
+        :param a_list: the array in list form to convert
+        :return:
+        """
         if type(a_list) == list:
             return np.array(a_list)
         else:
@@ -113,8 +123,18 @@ class DbInteractions:
 
 
     def add_channel_period(self, chan):
+        """
+        Adds period before csv to account for the fact that mongo does not allow periods in keys of dictionaries
+        :param chan: channel name to fix
+        :return: fixed channel name
+        """
         return chan.replace('csv', '.csv')
 
 
     def remove_channel_period(self, chan):
+        """
+        Removes period before csv to account for the fact that mongo does not allow periods in keys of dictionaries
+        :param chan: channel name to fix
+        :return: fixed channel name
+        """
         return chan.replace('.csv', 'csv')
