@@ -2,6 +2,12 @@
 
 A website and API tool for exploring anomalies in fNIRS data using both machine learning and statistical methods.
 
+Tis project was submitted as an undergraduate Major Qualifying Propject at WPI for the Math and Computer Science division. 
+Video presentation and slides found on the WPI Virtual Undergraduate Symposium at https://virtualresearchshowcase.wpi.edu/dept-pages/computer-science.html#68
+
+![Select algorithm](_user_guide/imgs/web_3.png)
+
+
 This README is an extensive guide on the features, code structure, and usage of the AnomalyDetector tool. Some sections
 are meant for first time users or people that do not have coding experience (Sections 1, 2, 5, 7), while others are meant for
 experienced developers or the curious who would like to understand how everything works under the hood. 
