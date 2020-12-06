@@ -2,7 +2,7 @@
 
 A website and API tool for exploring anomalies in fNIRS data using both machine learning and statistical methods.
 
-Tis project was submitted as an undergraduate Major Qualifying Propject at WPI for the Math and Computer Science division. 
+This project was submitted as an undergraduate Major Qualifying Propject at WPI for the Math and Computer Science division. 
 Video presentation and slides found on the WPI Virtual Undergraduate Symposium at https://virtualresearchshowcase.wpi.edu/dept-pages/computer-science.html#68
 
 ![Select algorithm](_user_guide/imgs/web_3.png)
